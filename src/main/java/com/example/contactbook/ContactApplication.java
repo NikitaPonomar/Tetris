@@ -7,22 +7,18 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-
+//import jfxtras.styles.jmetro.JMetro;
+//import jfxtras.styles.jmetro.Style;
 public class ContactApplication extends Application {
-    @Override
-    public void init() throws Exception {
-        try{
-            ContactData.getInstance().loadDataToInstance();
-        } catch (Exception e){
-            System.out.println(e.getMessage());
-        }
-    }
 
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(ContactApplication.class.getResource("contact-view.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 720, 240);
+        Scene scene = new Scene(fxmlLoader.load(), 820, 240);
         stage.setTitle("My Contacts!");
+        //        JMetro jMetro = new JMetro(Style.DARK);
+//        jMetro.setScene(scene);
+        //       AquaFx.style();
         stage.setScene(scene);
         stage.show();
     }
