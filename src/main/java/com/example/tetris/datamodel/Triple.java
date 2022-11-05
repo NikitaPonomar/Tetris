@@ -1,5 +1,7 @@
 package com.example.tetris.datamodel;
 
+import com.example.tetris.TetrisController;
+
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -58,12 +60,17 @@ public class Triple extends Thread {
                         currentLine = new HorizontalLine(GameField.getInstance().getField().get(globalTimer-1)) ;
                         addFigureToLine(globalTimer-1,myFigure,currentLine);
                         timer.cancel();
+                        TetrisController.myThreads.interrupt(); // returning control to ThreadCenter
+
+
                     }
 
                 }
 
                 if (globalTimer == limitTimer) {
                     timer.cancel();
+                    TetrisController.myThreads.interrupt();
+
 
                 }
             }
@@ -74,7 +81,7 @@ public class Triple extends Thread {
         return globalTimer;
     }
 
-    public void addFigureToLine (int position, HorizontalLine myFigure, HorizontalLine currentLine){
+    public static void addFigureToLine (int position, HorizontalLine myFigure, HorizontalLine currentLine){
         if (myFigure.getCol1().contentEquals("1")) currentLine.setCol1("1");
         if (myFigure.getCol2().contentEquals("1")) currentLine.setCol2("1");
         if (myFigure.getCol3().contentEquals("1")) currentLine.setCol3("1");

@@ -6,13 +6,10 @@ import com.example.tetris.datamodel.ThreadCenter;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.HBox;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
 
 import java.io.File;
@@ -21,6 +18,7 @@ import java.util.Optional;
 
 
 public class TetrisController {
+    public static Thread myThreads = new Thread(new ThreadCenter());
     @FXML
     private TableView<HorizontalLine> tableView;
 
@@ -142,22 +140,21 @@ public class TetrisController {
 
     @FXML
     private Node createPriorityGraphic(String value) {
-        HBox graphicContainer = new HBox();
-        graphicContainer.setAlignment(Pos.CENTER_LEFT);
         if (!value.equals("0") && value != "") {
-            ImageView imageView = new ImageView(new Image(getClass().getResourceAsStream("/img/figure.png")));
-            imageView.setFitHeight(25);
-            imageView.setPreserveRatio(true);
-            graphicContainer.getChildren().add(imageView);
+            Rectangle graphic = new Rectangle();
+            graphic.setHeight(25);
+            graphic.setWidth(25);
+            graphic.setOpacity(80);
+            return graphic;
         }
-        return graphicContainer;
+        return null;
     }
 
     @FXML
     private void launchGame() {
 
 
-        Thread myThreads = new Thread(new ThreadCenter());
+
         myThreads.start();
 
 

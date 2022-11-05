@@ -5,11 +5,7 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
 
 import java.io.*;
-import java.util.Arrays;
 import java.util.Iterator;
-import java.util.List;
-
-import static java.util.Collections.rotate;
 
 public class GameField {
     private static GameField instance = new GameField();
@@ -23,61 +19,38 @@ public class GameField {
     }
 
     public void handleKeyPressed (String receivedCommand) {
-        HorizontalLine myFigure = GameField.getInstance().getTripleLine();
         int lineNumber=GameField.getInstance().getPresentLineNumber();
- //       HorizontalLine currentLine=GameField.getInstance().getField().get(lineNumber);
-        System.out.println(lineNumber);
-        String stringCurrentLine=GameField.getInstance().getField().get(lineNumber).toString();
+        HorizontalLine currentLine=GameField.getInstance().getField().get(lineNumber);
+        String stringCurrentLine=currentLine.toString();
         String stringMyFigure=GameField.getInstance().getTripleLine().toString();
- //       String stringMyFigure=myFigure.toString();
-        List<String> myStrings = Arrays.asList(myFigure.getCol1(), myFigure.getCol2(), myFigure.getCol3(), myFigure.getCol4(), myFigure.getCol5(), myFigure.getCol6(), myFigure.getCol7(), myFigure.getCol8(), myFigure.getCol9(), myFigure.getCol10());
 
-        if (stringMyFigure.contentEquals(stringCurrentLine)) {
               switch (receivedCommand) {
                 case "RIGHT":
                     System.out.println(stringMyFigure);
-                    stringMyFigure= stringMyFigure.replace("1110","0111");
-                    System.out.println("new figure"+stringMyFigure);
-
+                    int index=stringMyFigure.indexOf("1110");
+                    if (index>-1 && (index+4)<=stringCurrentLine.length() && stringCurrentLine.substring(index,index+4).contentEquals("1110")){
+                        stringMyFigure= stringMyFigure.replace("1110","0111");
+                        System.out.println("new figure"+stringMyFigure);
+                    }
                     break;
+
                 case "LEFT":
-                    stringMyFigure=stringMyFigure.replace("0111","1110");
+                    int index2=stringMyFigure.indexOf("0111");
+                    if (index2>-1 && stringCurrentLine.substring(index2,index2+4).contentEquals("0111")) {
+                        stringMyFigure = stringMyFigure.replace("0111", "1110");
+                    }
                     break;
                 default:
                     return;
             }
 
-            String[] myStrings2 = stringMyFigure.split("");
-            HorizontalLine myFigure2 = new HorizontalLine(myStrings2[0], myStrings2[1], myStrings2[2], myStrings2[3], myStrings2[4], myStrings2[5], myStrings2[6], myStrings2[7], myStrings2[8], myStrings2[9]);
-            GameField.getInstance().setTripleLine(myFigure2);
-        } else {
-            //trying to rotate our figure in current line
-            int valueIndex = stringMyFigure.indexOf("111");
-//            if (stringCurrentLine.substring(valueIndex,valueIndex+3).contentEquals("000")){
-                switch (receivedCommand) {
-                    case "RIGHT":
-                        if (myStrings.get(myStrings.size() - 1) == "0" && stringCurrentLine.substring(valueIndex+3,valueIndex+4)=="0") {
-                            rotate(myStrings, 1);
-                        }
-                        break;
-                    case "LEFT":
-                        if (myStrings.get(0) == "0" && stringCurrentLine.substring(valueIndex-1,valueIndex)=="0") {
-                            rotate(myStrings, -1);
-
-                        }
-                        break;
-                    default:
-                        return;
-                }
-
-                myFigure = new HorizontalLine(myStrings.get(0), myStrings.get(1), myStrings.get(2), myStrings.get(3), myStrings.get(4), myStrings.get(5), myStrings.get(6), myStrings.get(7), myStrings.get(8), myStrings.get(9));
-                GameField.getInstance().setTripleLine(myFigure);
-
-        }
-
+            String[] myStrings = stringMyFigure.split("");
+            HorizontalLine myFigure = new HorizontalLine(myStrings[0], myStrings[1], myStrings[2], myStrings[3], myStrings[4], myStrings[5], myStrings[6], myStrings[7], myStrings[8], myStrings[9]);
+            GameField.getInstance().setTripleLine(myFigure);
 
 
     }
+
 
     public void calcHorizontalLine() {
         for (int i = field.size() - 1; i > 0; i--) {
