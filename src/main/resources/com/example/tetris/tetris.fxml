@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.BorderPane?>
+<BorderPane prefHeight="379.0" prefWidth="683.0" stylesheets="@tableViewStyle.css" xmlns="http://javafx.com/javafx/11" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.tetris.TetrisController">
+
+
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+    </padding>
+    <center>
+        <TableView fx:id="tableView" fixedCellSize="25.0" onKeyPressed="#handleOnTableKeyPressed" prefHeight="315.0" prefWidth="532.0" stylesheets="@tableViewStyle.css" BorderPane.alignment="CENTER">
+            <columnResizePolicy>
+                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+            </columnResizePolicy>
+            <placeholder>
+                <Label text="Start new game!"/>
+            </placeholder>
+            <columns>
+                <TableColumn fx:id="tetrisCol1" text="Col1" />
+                <TableColumn fx:id="tetrisCol2" text="Col2" />
+                <TableColumn fx:id="tetrisCol3" text="Col3" />
+                <TableColumn fx:id="tetrisCol4" text="Col4" />
+                <TableColumn fx:id="tetrisCol5" text="Col5" />
+                <TableColumn fx:id="tetrisCol6" text="Col6" />
+                <TableColumn fx:id="tetrisCol7" text="Col7" />
+                <TableColumn fx:id="tetrisCol8" text="Col8" />
+                <TableColumn fx:id="tetrisCol9" text="Col9" />
+                <TableColumn fx:id="tetrisCol10" text="Col10" />
+            </columns>
+            <BorderPane.margin>
+                <Insets />
+            </BorderPane.margin>
+        </TableView>
+    </center>
+    <top>
+        <MenuBar BorderPane.alignment="CENTER">
+            <menus>
+                <Menu mnemonicParsing="false" text="File">
+                    <items>
+                        <MenuItem accelerator="Ctrl+L" mnemonicParsing="false" onAction="#handleLoadFromFile" text="Load game from file" />
+                        <MenuItem mnemonicParsing="false" onAction="#launchGame" text="Start game" />
+                        <MenuItem mnemonicParsing="false" onAction="#handleStoreToFile" text="Save game to file" />
+                        <MenuItem mnemonicParsing="false" onAction="#handleExit" text="Exit" />
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
+    </top>
+</BorderPane>

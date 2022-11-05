@@ -1,6 +1,10 @@
 .root {
     -fx-body-color : #F5F5F5;
     -fx-outer-border : #cecece;
+    -fx-font-family: 'serif'
+}
+.table-row-cell:empty:odd, .table-row-cell:empty:even {
+    -fx-background-color: transparent;
 }
 .button:focused, .toggle-button:focused,
 .split-menu-button:focused, .menu-button:focused,
