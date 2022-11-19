@@ -9,8 +9,13 @@ import java.util.Iterator;
 
 public class GameField {
     private static GameField instance = new GameField();
+    private Triple currentTriple;
     private ObservableList<HorizontalLine> field = FXCollections.observableArrayList();
     private int score = 0;
+    private int speed=400;
+
+
+
     private int presentLineNumber = 0;
     private HorizontalLine tripleLine = HorizontalLine.getTripleLine();
     private HorizontalLine emptyLine = new HorizontalLine("0", "0", "0", "0", "0", "0", "0", "0", "0", "0");
@@ -18,35 +23,44 @@ public class GameField {
     private GameField() {
     }
 
-    public void handleKeyPressed (String receivedCommand) {
-        int lineNumber=GameField.getInstance().getPresentLineNumber();
-        HorizontalLine currentLine=GameField.getInstance().getField().get(lineNumber);
-        String stringCurrentLine=currentLine.toString();
-        String stringMyFigure=GameField.getInstance().getTripleLine().toString();
+    public void handleKeyPressed(String receivedCommand) {
+        int lineNumber = GameField.getInstance().getPresentLineNumber();
+        HorizontalLine currentLine = GameField.getInstance().getField().get(lineNumber);
+        String stringCurrentLine = currentLine.toString();
+        String stringMyFigure = GameField.getInstance().getTripleLine().toString();
 
-              switch (receivedCommand) {
-                case "RIGHT":
-                    System.out.println(stringMyFigure);
-                    int index=stringMyFigure.indexOf("1110");
-                    if (index>-1 && (index+4)<=stringCurrentLine.length() && stringCurrentLine.substring(index,index+4).contentEquals("1110")){
-                        stringMyFigure= stringMyFigure.replace("1110","0111");
-                        System.out.println("new figure"+stringMyFigure);
-                    }
-                    break;
+        switch (receivedCommand) {
+            case "RIGHT":
+                System.out.println(stringMyFigure);
+                int index = stringMyFigure.indexOf("1110");
+                if (index > -1 && (index + 4) <= stringCurrentLine.length() && stringCurrentLine.substring(index, index + 4).contentEquals("1110")) {
+                    stringMyFigure = stringMyFigure.replace("1110", "0111");
+                    System.out.println("new figure" + stringMyFigure);
+                }
+                break;
 
-                case "LEFT":
-                    int index2=stringMyFigure.indexOf("0111");
-                    if (index2>-1 && stringCurrentLine.substring(index2,index2+4).contentEquals("0111")) {
-                        stringMyFigure = stringMyFigure.replace("0111", "1110");
-                    }
-                    break;
-                default:
-                    return;
-            }
+            case "LEFT":
+                int index2 = stringMyFigure.indexOf("0111");
+                if (index2 > -1 && stringCurrentLine.substring(index2, index2 + 4).contentEquals("0111")) {
+                    stringMyFigure = stringMyFigure.replace("0111", "1110");
+                }
+                break;
 
-            String[] myStrings = stringMyFigure.split("");
-            HorizontalLine myFigure = new HorizontalLine(myStrings[0], myStrings[1], myStrings[2], myStrings[3], myStrings[4], myStrings[5], myStrings[6], myStrings[7], myStrings[8], myStrings[9]);
-            GameField.getInstance().setTripleLine(myFigure);
+            case "DOWN":
+             //  TetrisController.myThreads.
+             //    presentLineNumber++;
+
+
+  //              setSpeed(10); // speed up the figure falling dawn
+                break;
+
+            default:
+                return;
+        }
+
+        String[] myStrings = stringMyFigure.split("");
+        HorizontalLine myFigure = new HorizontalLine(myStrings[0], myStrings[1], myStrings[2], myStrings[3], myStrings[4], myStrings[5], myStrings[6], myStrings[7], myStrings[8], myStrings[9]);
+        GameField.getInstance().setTripleLine(myFigure);
 
 
     }
@@ -195,5 +209,11 @@ public class GameField {
         this.presentLineNumber = presentLineNumber;
     }
 
+    public int getSpeed() {
+        return speed;
+    }
 
+    public void setSpeed(int speed) {
+        this.speed = speed;
+    }
 }

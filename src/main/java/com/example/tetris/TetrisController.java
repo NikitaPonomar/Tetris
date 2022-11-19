@@ -156,6 +156,7 @@ public class TetrisController {
 
 
         myThreads.start();
+    //    myThreads.setPresentTriple(new Triple());
 
 
 

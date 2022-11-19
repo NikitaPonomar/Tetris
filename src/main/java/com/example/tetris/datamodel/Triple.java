@@ -6,25 +6,31 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class Triple extends Thread {
+
+    // написать Трипл без таймер таска и вынести опускание вниз в отдельный синхронизировнный метод.
+    // Вместо period использовать Thread.sleep(). И вызывать interrupt() метод в GameField по щелчку на кнопке DOWN
     private int globalTimer = -1;
     private int limitTimer = 19;
-
+    public Timer timer = new Timer();
 
     public Triple() {
         HorizontalLine emptyLine = GameField.getInstance().getEmptyLine();
         GameField.getInstance().setTripleLine(HorizontalLine.getTripleLine()); //setting up absolutely new Triple figure in our game field
 
-        Timer timer = new Timer();
+
         timer.schedule(new TimerTask() {
             HorizontalLine previousLine = null;
             HorizontalLine currentLine = null;
-            HorizontalLine mergedLine = null;
             HorizontalLine myFigure = GameField.getInstance().getTripleLine();
 
             @Override
             public void run() {
+//               if(GameField.getInstance().getPresentLineNumber()>globalTimer && globalTimer!=-1){
+//                   globalTimer=GameField.getInstance().getPresentLineNumber(); //to input DOWN command from GameField
+//               }
                 globalTimer++;
                 // DO YOUR CODE HERE
+         //       GameField.getInstance().setSpeed(400);
                 myFigure = GameField.getInstance().getTripleLine();
                 GameField.getInstance().setPresentLineNumber(globalTimer);
 
@@ -37,7 +43,6 @@ public class Triple extends Thread {
                     }
 
                 }
-
 
                 if (GameField.getInstance().getField().get(globalTimer).equals(emptyLine)) {
                     //           System.out.println(field.get(globalTimer));
@@ -67,10 +72,11 @@ public class Triple extends Thread {
 
                 }
 
-                if (globalTimer == limitTimer) {
-                    timer.cancel();
-                    TetrisController.myThreads.interrupt();
+          //      setGlobalTimer(GameField.getInstance().getPresentLineNumber());
 
+                if (globalTimer >= limitTimer) {
+                    timer.cancel();
+                    TetrisController.myThreads.interrupt(); // returning control to ThreadCenter
 
                 }
             }
@@ -80,6 +86,8 @@ public class Triple extends Thread {
     public int getGlobalTimer() {
         return globalTimer;
     }
+
+    public void setGlobalTimer(int globalTimer) {this.globalTimer = globalTimer; }
 
     public static void addFigureToLine (int position, HorizontalLine myFigure, HorizontalLine currentLine){
         if (myFigure.getCol1().contentEquals("1")) currentLine.setCol1("1");
