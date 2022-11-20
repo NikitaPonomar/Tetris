@@ -152,18 +152,8 @@ public class TetrisController {
 
     @FXML
     private void launchGame() {
-
-
-
         myThreads.start();
-    //    myThreads.setPresentTriple(new Triple());
-
-
-
-
         System.out.println("finish");
-
-
     }
 
 }

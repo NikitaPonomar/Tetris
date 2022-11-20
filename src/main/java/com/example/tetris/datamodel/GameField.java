@@ -9,12 +9,18 @@ import java.util.Iterator;
 
 public class GameField {
     private static GameField instance = new GameField();
-    private Triple currentTriple;
     private ObservableList<HorizontalLine> field = FXCollections.observableArrayList();
     private int score = 0;
     private int speed=400;
+    Thread currentFigureThread=null;
 
+    public Thread getCurrentFigureThread() {
+        return currentFigureThread;
+    }
 
+    public void setCurrentFigureThread(Thread currentFigureThread) {
+        this.currentFigureThread = currentFigureThread;
+    }
 
     private int presentLineNumber = 0;
     private HorizontalLine tripleLine = HorizontalLine.getTripleLine();
@@ -23,7 +29,7 @@ public class GameField {
     private GameField() {
     }
 
-    public void handleKeyPressed(String receivedCommand) {
+    public void handleKeyPressed (String receivedCommand) {
         int lineNumber = GameField.getInstance().getPresentLineNumber();
         HorizontalLine currentLine = GameField.getInstance().getField().get(lineNumber);
         String stringCurrentLine = currentLine.toString();
@@ -47,11 +53,10 @@ public class GameField {
                 break;
 
             case "DOWN":
-             //  TetrisController.myThreads.
-             //    presentLineNumber++;
+    //         setSpeed(0); // speed up the figure falling dawn
+                System.out.println("trying to reduse speed for thread: "+ getCurrentFigureThread().getName());
+                getCurrentFigureThread().interrupt();
 
-
-  //              setSpeed(10); // speed up the figure falling dawn
                 break;
 
             default:

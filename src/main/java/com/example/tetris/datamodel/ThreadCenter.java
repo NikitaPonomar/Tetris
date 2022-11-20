@@ -1,18 +1,18 @@
 package com.example.tetris.datamodel;
 
 public class ThreadCenter implements Runnable {
+    Figure horizontalFigure=null;
 
-
-
+    public Figure getHorizontalFigure() {return horizontalFigure;}
 
     @Override
     public void run() {
         do {
-          Triple   presentTriple = new Triple();
-
-            System.out.println(presentTriple.getName() + "thread name");
+            horizontalFigure = new Trio();
+            horizontalFigure.start();
+            System.out.println(horizontalFigure.getName() + "thread name");
             try {
-                Thread.sleep(9000);
+                horizontalFigure.join(10000);
             } catch (InterruptedException e) {
                 System.out.println("Triple thread has been interrupted by InterruptedException");
                 continue;
