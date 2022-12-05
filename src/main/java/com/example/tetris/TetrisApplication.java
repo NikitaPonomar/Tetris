@@ -1,6 +1,7 @@
 package com.example.tetris;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -15,9 +16,12 @@ public class TetrisApplication extends Application {
         stage.setTitle("Tetris game");
         stage.setScene(scene);
         stage.show();
+        Platform.setImplicitExit(false);
     }
+
 
     public static void main(String[] args) {
         launch();
     }
 }
+

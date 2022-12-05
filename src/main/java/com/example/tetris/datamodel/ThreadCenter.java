@@ -2,12 +2,19 @@ package com.example.tetris.datamodel;
 
 public class ThreadCenter implements Runnable {
     Figure horizontalFigure=null;
+    public boolean isActive;
+
+
+    public ThreadCenter() {
+        isActive = true;
+    }
 
     public Figure getHorizontalFigure() {return horizontalFigure;}
 
     @Override
     public void run() {
-        do {
+        while (isActive){
+
             horizontalFigure = new Trio();
             horizontalFigure.start();
             System.out.println(horizontalFigure.getName() + "thread name");
@@ -18,8 +25,11 @@ public class ThreadCenter implements Runnable {
                 continue;
             }
             GameField.getInstance().calcHorizontalLine();
-        } while (true);
+        }
     }
 
+    public void disable(){
 
+        isActive=false;
+    }
 }

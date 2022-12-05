@@ -9,7 +9,25 @@ import java.util.Iterator;
 
 public class GameField {
     private static GameField instance = new GameField();
+
+
     private ObservableList<HorizontalLine> field = FXCollections.observableArrayList();
+
+    public void clearField() {
+        for (HorizontalLine record: field){
+            record.setCol1("0");
+            record.setCol2("0");
+            record.setCol3("0");
+            record.setCol4("0");
+            record.setCol5("0");
+            record.setCol6("0");
+            record.setCol7("0");
+            record.setCol8("0");
+            record.setCol9("0");
+            record.setCol10("0");
+        }
+    }
+
     private int score = 0;
     private int speed=400;
     Thread currentFigureThread=null;
@@ -56,7 +74,6 @@ public class GameField {
     //         setSpeed(0); // speed up the figure falling dawn
                 System.out.println("trying to reduse speed for thread: "+ getCurrentFigureThread().getName());
                 getCurrentFigureThread().interrupt();
-
                 break;
 
             default:

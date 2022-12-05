@@ -8,7 +8,7 @@ public abstract class Figure extends Thread {
 
     private boolean isActive;
 
-    void disable(){
+    public void disable(){
         isActive=false;
     }
 
