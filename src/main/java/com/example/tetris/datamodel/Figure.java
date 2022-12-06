@@ -8,33 +8,30 @@ public abstract class Figure extends Thread {
 
     private boolean isActive;
 
-    public void disable(){
-        isActive=false;
-    }
+    public void disable(){ isActive=false; }
 
     public Figure() {
         isActive = true;
     }
 
     @Override
-    public void run() {
+    public synchronized void run() {
         while(isActive && globalTimer < limitTimer) {
 
             globalTimer++;
             // DO YOUR CODE HERE
 
             moveDown();
-            try {
-                System.out.println("current speed " +GameField.getInstance().getSpeed());
-                GameField.getInstance().setCurrentFigureThread(currentThread());
-                Thread.sleep(GameField.getInstance().getSpeed());
-            } catch (InterruptedException e) {
-                System.out.println(" wake up this thread! " + currentThread().getName() );
-            }
+                try {
+                    System.out.println("current speed " + GameField.getInstance().getSpeed());
+                    GameField.getInstance().setCurrentFigureThread(currentThread());
+                    Thread.sleep(GameField.getInstance().getSpeed());
+                } catch (InterruptedException e) {
+                    System.out.println(" wake up this thread! " + currentThread().getName());
+                }
  //           GameField.getInstance().setSpeed(delay); //setting usual speed for next loop
 
         }
-            // Figure thread finished and  return control to ThreadCenter
     }
 
     public abstract void moveDown();

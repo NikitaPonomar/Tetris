@@ -5,40 +5,16 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
 
 import java.io.*;
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GameField {
     private static GameField instance = new GameField();
-
-
     private ObservableList<HorizontalLine> field = FXCollections.observableArrayList();
 
-    public void clearField() {
-        for (HorizontalLine record: field){
-            record.setCol1("0");
-            record.setCol2("0");
-            record.setCol3("0");
-            record.setCol4("0");
-            record.setCol5("0");
-            record.setCol6("0");
-            record.setCol7("0");
-            record.setCol8("0");
-            record.setCol9("0");
-            record.setCol10("0");
-        }
-    }
-
     private int score = 0;
-    private int speed=400;
-    Thread currentFigureThread=null;
-
-    public Thread getCurrentFigureThread() {
-        return currentFigureThread;
-    }
-
-    public void setCurrentFigureThread(Thread currentFigureThread) {
-        this.currentFigureThread = currentFigureThread;
-    }
+    private int speed = 400;
+    Thread currentFigureThread = null;
 
     private int presentLineNumber = 0;
     private HorizontalLine tripleLine = HorizontalLine.getTripleLine();
@@ -47,19 +23,16 @@ public class GameField {
     private GameField() {
     }
 
-    public void handleKeyPressed (String receivedCommand) {
-        int lineNumber = GameField.getInstance().getPresentLineNumber();
-        HorizontalLine currentLine = GameField.getInstance().getField().get(lineNumber);
+    public void handleKeyPressed(String receivedCommand) {
+        HorizontalLine currentLine = GameField.getInstance().getField().get(presentLineNumber);
         String stringCurrentLine = currentLine.toString();
         String stringMyFigure = GameField.getInstance().getTripleLine().toString();
 
         switch (receivedCommand) {
             case "RIGHT":
-                System.out.println(stringMyFigure);
                 int index = stringMyFigure.indexOf("1110");
                 if (index > -1 && (index + 4) <= stringCurrentLine.length() && stringCurrentLine.substring(index, index + 4).contentEquals("1110")) {
                     stringMyFigure = stringMyFigure.replace("1110", "0111");
-                    System.out.println("new figure" + stringMyFigure);
                 }
                 break;
 
@@ -71,8 +44,7 @@ public class GameField {
                 break;
 
             case "DOWN":
-    //         setSpeed(0); // speed up the figure falling dawn
-                System.out.println("trying to reduse speed for thread: "+ getCurrentFigureThread().getName());
+                 // speed up the figure falling dawn
                 getCurrentFigureThread().interrupt();
                 break;
 
@@ -83,8 +55,6 @@ public class GameField {
         String[] myStrings = stringMyFigure.split("");
         HorizontalLine myFigure = new HorizontalLine(myStrings[0], myStrings[1], myStrings[2], myStrings[3], myStrings[4], myStrings[5], myStrings[6], myStrings[7], myStrings[8], myStrings[9]);
         GameField.getInstance().setTripleLine(myFigure);
-
-
     }
 
 
@@ -109,36 +79,35 @@ public class GameField {
         return sum;
     }
 
-    public boolean addLine(HorizontalLine horizontalLine) {
-        field.add(horizontalLine);
-        return true;
-    }
-
 
     public void storeToFile(File file) throws IOException {
-        //       Path path = Paths.get(filename);
-
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
             bw.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                     "<soap:Envelope xmlns:soap= \"https://www.svoy-med.ru/ContactBook-soap\">\n" +
                     "<soap:body>");
-            Iterator<HorizontalLine> iterator = field.iterator();
-            while (iterator.hasNext()) {
-                HorizontalLine contact = iterator.next();
-                bw.write("<HorizontalLine>\n" +
-                        "    <col1>" + contact.getCol1() + "</col1>\n" +
-                        "    <col2>" + contact.getCol2() + "</col2>\n" +
-                        "    <col3>" + contact.getCol3() + "</col3>\n" +
-                        "    <col4>" + contact.getCol4() + "</col4>\n" +
-                        "    <col5>" + contact.getCol5() + "</col5>\n" +
-                        "    <col6>" + contact.getCol6() + "</col6>\n" +
-                        "    <col7>" + contact.getCol7() + "</col7>\n" +
-                        "    <col8>" + contact.getCol8() + "</col8>\n" +
-                        "    <col9>" + contact.getCol9() + "</col9>\n" +
-                        "    <col10>" + contact.getCol4() + "</col10>\n" +
-                        "</HorizontalLine>");
-                bw.newLine();
+
+            for (int i=0;i< field.size();i++){
+                HorizontalLine line = field.get(i);
+                // cleaning our field from the moving figure to proper store field
+                if (i==getPresentLineNumber()) {
+                    line =new HorizontalLine(line);
+                    line =removeFigureFromLine(i,getTripleLine(),line);
+                }
+                    bw.write("<HorizontalLine>\n" +
+                            "    <col1>" + line.getCol1() + "</col1>\n" +
+                            "    <col2>" + line.getCol2() + "</col2>\n" +
+                            "    <col3>" + line.getCol3() + "</col3>\n" +
+                            "    <col4>" + line.getCol4() + "</col4>\n" +
+                            "    <col5>" + line.getCol5() + "</col5>\n" +
+                            "    <col6>" + line.getCol6() + "</col6>\n" +
+                            "    <col7>" + line.getCol7() + "</col7>\n" +
+                            "    <col8>" + line.getCol8() + "</col8>\n" +
+                            "    <col9>" + line.getCol9() + "</col9>\n" +
+                            "    <col10>" + line.getCol4() + "</col10>\n" +
+                            "</HorizontalLine>");
+                    bw.newLine();
             }
+
             bw.write("</soap:body>\n" +
                     "</soap:Envelope>");
             bw.newLine();
@@ -164,8 +133,8 @@ public class GameField {
         String[] parsingContactList = new String(stringBuilder).split("<HorizontalLine>");
         Alert.AlertType processResult = Alert.AlertType.WARNING;
 
+        List <HorizontalLine> tmpList=new ArrayList<>();
         for (String str : parsingContactList) {
-            //    System.out.println(str);
             if (!str.contains("</HorizontalLine>")) continue;
             String col1 = parseStringValue(str, "<col1>", "</col1>");
             String col2 = parseStringValue(str, "<col2>", "</col2>");
@@ -177,15 +146,25 @@ public class GameField {
             String col8 = parseStringValue(str, "<col8>", "</col8>");
             String col9 = parseStringValue(str, "<col9>", "</col9>");
             String col10 = parseStringValue(str, "<col10>", "</col10>");
-
-            //          if (col1=="") col1="e";
-            HorizontalLine contact = new HorizontalLine(col1, col2, col3, col4, col5, col6, col7, col8, col9, col10);
-            if (addLine(contact) == true) {
-                processResult = Alert.AlertType.INFORMATION;
-            }
-
+            HorizontalLine newLine = new HorizontalLine(col1, col2, col3, col4, col5, col6, col7, col8, col9, col10);
+            tmpList.add(newLine);
         }
+        if (tmpList.size()!=20) {
+            System.out.println("incorrect size of file");
+            return Alert.AlertType.WARNING;
+        }
+        if (field.isEmpty()){
+            for (int i=0;i<tmpList.size();i++){
+            field.add(tmpList.get(i));
+            }
+        } else {
+            for (int i=0;i<tmpList.size();i++){
+                field.set(i,tmpList.get(i));
+            }
+        }
+        processResult = Alert.AlertType.INFORMATION;
         return processResult;
+
     }
 
     private String parseStringValue(String str, String firstTag, String secondTag) {
@@ -198,44 +177,40 @@ public class GameField {
         return "0";
     }
 
-
-    public static GameField getInstance() {
-        return instance;
+    public void initiateEmptyField() {
+        for (int i=0;i<20;i++){
+            this.field.add(emptyLine);
+        }
+    }
+    public void clearField() {
+        for (int i = 0; i < 20; i++) {
+            field.set(i, new HorizontalLine(emptyLine));
+        }
     }
 
-    public ObservableList<HorizontalLine> getField() {
-        return field;
+    public HorizontalLine removeFigureFromLine (int position, HorizontalLine myFigure, HorizontalLine currentLine){
+        if (myFigure.getCol1().contentEquals("1")) currentLine.setCol1("0");
+        if (myFigure.getCol2().contentEquals("1")) currentLine.setCol2("0");
+        if (myFigure.getCol3().contentEquals("1")) currentLine.setCol3("0");
+        if (myFigure.getCol4().contentEquals("1")) currentLine.setCol4("0");
+        if (myFigure.getCol5().contentEquals("1")) currentLine.setCol5("0");
+        if (myFigure.getCol6().contentEquals("1")) currentLine.setCol6("0");
+        if (myFigure.getCol7().contentEquals("1")) currentLine.setCol7("0");
+        if (myFigure.getCol8().contentEquals("1")) currentLine.setCol8("0");
+        if (myFigure.getCol9().contentEquals("1")) currentLine.setCol9("0");
+        if (myFigure.getCol10().contentEquals("1")) currentLine.setCol10("0");
+        return currentLine;
     }
 
-    public HorizontalLine getTripleLine() {
-        return tripleLine;
-    }
-
-    public void setTripleLine(HorizontalLine tripleLine) {
-        this.tripleLine = tripleLine;
-    }
-
-    public HorizontalLine getEmptyLine() {
-        return emptyLine;
-    }
-
-    public void setEmptyLine(HorizontalLine emptyLine) {
-        this.emptyLine = emptyLine;
-    }
-
-    public int getPresentLineNumber() {
-        return presentLineNumber;
-    }
-
-    public void setPresentLineNumber(int presentLineNumber) {
-        this.presentLineNumber = presentLineNumber;
-    }
-
-    public int getSpeed() {
-        return speed;
-    }
-
-    public void setSpeed(int speed) {
-        this.speed = speed;
-    }
+    public static GameField getInstance() { return instance; }
+    public ObservableList<HorizontalLine> getField() { return field; }
+    public HorizontalLine getTripleLine() { return tripleLine; }
+    public void setTripleLine(HorizontalLine tripleLine) { this.tripleLine = tripleLine; }
+    public HorizontalLine getEmptyLine() { return emptyLine; }
+    public int getPresentLineNumber() {return presentLineNumber;}
+    public void setPresentLineNumber(int presentLineNumber) { this.presentLineNumber = presentLineNumber;}
+    public int getSpeed() { return speed;}
+    public void setSpeed(int speed) { this.speed = speed;}
+    public Thread getCurrentFigureThread() { return currentFigureThread; }
+    public void setCurrentFigureThread(Thread currentFigureThread) { this.currentFigureThread = currentFigureThread; }
 }

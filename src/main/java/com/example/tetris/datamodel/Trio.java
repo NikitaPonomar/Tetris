@@ -1,9 +1,9 @@
 package com.example.tetris.datamodel;
 
-public class Trio extends Figure {
+public  class Trio extends Figure {
     HorizontalLine previousLine = null;
     HorizontalLine currentLine = null;
-    HorizontalLine myFigure = HorizontalLine.getTripleLine();
+    public HorizontalLine myFigure = HorizontalLine.getTripleLine();
 
     public Trio(){
         GameField.getInstance().setTripleLine(myFigure);//setting up absolutely new Triple figure in our game field
@@ -11,9 +11,9 @@ public class Trio extends Figure {
 
     @Override
     public void moveDown() {
+        if (GameField.getInstance().getField().isEmpty()) return;
         myFigure = GameField.getInstance().getTripleLine();
         GameField.getInstance().setPresentLineNumber(globalTimer);
-        System.out.println(myFigure);
         System.out.println(globalTimer);
         if (globalTimer > 0) {
             if (previousLine == null) {
@@ -26,7 +26,7 @@ public class Trio extends Figure {
 
         if (GameField.getInstance().getField().get(globalTimer).equals(emptyLine)) {
             GameField.getInstance().getField().set(globalTimer, myFigure);
-        } else {
+        } else  {
             //trying to inject our figure in current line
             //     mergedLine=currentLine;
             currentLine = GameField.getInstance().getField().get(globalTimer);
@@ -38,7 +38,7 @@ public class Trio extends Figure {
                 previousLine = new HorizontalLine(currentLine);
                 addFigureToLine(globalTimer,myFigure,currentLine);
             } else  {
-                //                       GameField.getInstance().getField().set(globalTimer-1,myFigure);
+                if (GameField.getInstance().getField().isEmpty()) return;
                 currentLine = new HorizontalLine(GameField.getInstance().getField().get(globalTimer-1)) ;
                 addFigureToLine(globalTimer-1,myFigure,currentLine);
                 disable(); // Figure thread finished and  return control to ThreadCenter
@@ -59,4 +59,5 @@ public class Trio extends Figure {
         if (myFigure.getCol10().contentEquals("1")) currentLine.setCol10("1");
         GameField.getInstance().getField().set(position, currentLine);
     }
+
 }

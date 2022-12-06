@@ -191,19 +191,6 @@ public class HorizontalLine implements Comparable<HorizontalLine> {
 
     @Override
     public String toString() {
-//        return "HorizontalLine{" +
-//                "col1=" + getCol1() +
-//                ", col2=" + getCol2() +
-//                ", col3=" + getCol3() +
-//                ", col4=" + getCol4() +
-//                ", col5=" + getCol5() +
-//                ", col6=" + getCol6() +
-//                ", col7=" + getCol7() +
-//                ", col8=" + getCol8() +
-//                ", col9=" + getCol9() +
-//                ", col10=" + getCol10() +
-//                '}';
         return ""+getCol1() + getCol2() + getCol3() + getCol4() + getCol5() + getCol6() + getCol7() + getCol8() + getCol9() + getCol10();
-
     }
 }

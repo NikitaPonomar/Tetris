@@ -49,9 +49,9 @@
             <menus>
                 <Menu mnemonicParsing="false" text="File">
                     <items>
-                        <!--MenuItem accelerator="Ctrl+L" mnemonicParsing="false" onAction="#handleLoadFromFile" text="Load game from file" /-->
+                        <MenuItem accelerator="Ctrl+L" mnemonicParsing="false" onAction="#handleLoadFromFile" text="Load game from file" />
                         <MenuItem mnemonicParsing="false" onAction="#launchGame" text="Start new game" fx:id="menuLaunch"/>
-                        <!--MenuItem mnemonicParsing="false" onAction="#handleStoreToFile" text="Save game to file" /-->
+                        <MenuItem mnemonicParsing="false" onAction="#handleStoreToFile" text="Save game to file" />
                         <MenuItem mnemonicParsing="false" onAction="#handleExit" text="Exit" />
                     </items>
                 </Menu>

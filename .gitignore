@@ -2,6 +2,14 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+GameSettings.xml
+.DS_Store
+src/.DS_Store
+src/main/.DS_Store
+src/main/resources/.DS_Store
+src/main/resources/com/.DS_Store
+src/main/resources/com/example/.DS_Store
+
 
 ### IntelliJ IDEA ###
 .idea/modules.xml

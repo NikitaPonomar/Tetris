@@ -18,7 +18,7 @@ import java.util.Optional;
 
 
 public class TetrisController {
-  //  public static Thread myThreads = new Thread(new ThreadCenter());
+    //  public static Thread myThreads = new Thread(new ThreadCenter());
     public static ThreadCenter task = new ThreadCenter();
     public static Thread myThreads = new Thread(task);
     @FXML
@@ -31,6 +31,7 @@ public class TetrisController {
     public void initialize() {
 
         //binding our ObservableList with TableView
+        GameField.getInstance().initiateEmptyField();
         tableView.setItems(GameField.getInstance().getField());
 
 
@@ -74,7 +75,7 @@ public class TetrisController {
 
         tableView.setSelectionModel(null);
 
-        tableView.setMaxSize(315.0,532.0);
+        tableView.setMaxSize(315.0, 532.0);
 
     }
 
@@ -106,11 +107,10 @@ public class TetrisController {
                 new FileChooser.ExtensionFilter("XML Files", "*.xml"));
 
         try {
-            GameField.getInstance().getCurrentFigureThread().wait(10000);
             File file = chooser.showSaveDialog(tableView.getScene().getWindow());
             if (file == null) return;
             GameField.getInstance().storeToFile(file);
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException e) {
             System.out.println(e.getMessage());
         }
     }
@@ -126,30 +126,31 @@ public class TetrisController {
 
         try {
             file = chooser.showOpenDialog(tableView.getScene().getWindow());
-
             if (file == null) return;
         } catch (Exception e) {
             e.printStackTrace();
             return;
         }
 
+        if (myThreads.isAlive()) {
+            //cleaning game field and finish figure thread by sending multiple IterationExceptions
+            while (GameField.getInstance().getCurrentFigureThread().isAlive()) {
+                GameField.getInstance().getCurrentFigureThread().interrupt();
+            }
+            GameField.getInstance().getField().clear();
+        }
+
         Alert.AlertType loadResult = GameField.getInstance().loadFromFile(file);
         Alert alert = new Alert(loadResult);
         if (loadResult == Alert.AlertType.WARNING) {
             alert.setHeaderText("No new available contacts in file:\n" + file.getPath());
+        } else if (loadResult == Alert.AlertType.WARNING) {
+            alert.setHeaderText("Incorrect file:\n" + file.getPath());
         } else {
             alert.setHeaderText("Game was loaded successfully!");
         }
         Optional<ButtonType> opt = alert.showAndWait();
-        if (myThreads.isAlive()) {
-            //cleaning game field and finish figure thread by sending multiple IterationExceptions
-            GameField.getInstance().clearField();
-            while( GameField.getInstance().getCurrentFigureThread().isAlive()){
-                GameField.getInstance().getCurrentFigureThread().interrupt();
-            }
-        } else {
-            myThreads.start();
-        }
+        if (!myThreads.isAlive()) myThreads.start();
 
     }
 
@@ -168,31 +169,18 @@ public class TetrisController {
 
     @FXML
     private void launchGame() {
-        File file = new File("NewGame.xml");
-
-        Alert.AlertType loadResult = GameField.getInstance().loadFromFile(file);
-        Alert alert = new Alert(loadResult);
-        if (loadResult == Alert.AlertType.WARNING) {
-            alert.setHeaderText("No such file \n" + file.getPath());
-        } else {
-            alert.setHeaderText("New game started!");
-        }
-        Optional<ButtonType> opt = alert.showAndWait();
         if (myThreads.isAlive()) {
             //cleaning game field and finish figure thread by sending multiple IterationExceptions
-            GameField.getInstance().clearField();
-            while( GameField.getInstance().getCurrentFigureThread().isAlive()){
+            while (GameField.getInstance().getCurrentFigureThread().isAlive()) {
                 GameField.getInstance().getCurrentFigureThread().interrupt();
             }
         } else {
             myThreads.start();
         }
-
-   //     myThreads = new Thread(task);
-
-
-        
-        System.out.println("finish");
+        if (GameField.getInstance().getField().isEmpty()) {
+            GameField.getInstance().initiateEmptyField();
+        } else {
+            GameField.getInstance().clearField();
+        }
     }
-
 }
