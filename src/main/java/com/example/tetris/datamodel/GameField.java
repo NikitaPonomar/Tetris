@@ -11,6 +11,7 @@ import java.util.List;
 public class GameField {
     private static GameField instance = new GameField();
     private ObservableList<HorizontalLine> field = FXCollections.observableArrayList();
+    public static final int FIELD_SIZE=20;
 
     private int score = 0;
     private int speed = 400;
@@ -149,7 +150,7 @@ public class GameField {
             HorizontalLine newLine = new HorizontalLine(col1, col2, col3, col4, col5, col6, col7, col8, col9, col10);
             tmpList.add(newLine);
         }
-        if (tmpList.size()!=20) {
+        if (tmpList.size()!=FIELD_SIZE) {
             System.out.println("incorrect size of file");
             return Alert.AlertType.WARNING;
         }
@@ -178,12 +179,12 @@ public class GameField {
     }
 
     public void initiateEmptyField() {
-        for (int i=0;i<20;i++){
+        for (int i=0;i<FIELD_SIZE;i++){
             this.field.add(emptyLine);
         }
     }
     public void clearField() {
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < FIELD_SIZE; i++) {
             field.set(i, new HorizontalLine(emptyLine));
         }
     }
