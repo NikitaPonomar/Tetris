@@ -21,7 +21,7 @@ public abstract class Figure extends Thread {
             globalTimer++;
             // DO YOUR CODE HERE
 
-            moveDown();
+            moveDown(); // may be it is better to send current Figure as object to moveDown class
                 try {
                     System.out.println("current speed " + GameField.getInstance().getSpeed());
                     GameField.getInstance().setCurrentFigureThread(currentThread());

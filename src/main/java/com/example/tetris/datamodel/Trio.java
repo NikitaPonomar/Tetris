@@ -3,7 +3,7 @@ package com.example.tetris.datamodel;
 public  class Trio extends Figure {
     HorizontalLine previousLine = null;
     HorizontalLine currentLine = null;
-    public HorizontalLine myFigure = HorizontalLine.getTripleLine();
+     public HorizontalLine myFigure = HorizontalLine.getTripleLine();
 
     public Trio(){
         GameField.getInstance().setTripleLine(myFigure);//setting up absolutely new Triple figure in our game field

@@ -17,6 +17,7 @@ public class ThreadCenter implements Runnable {
 
             horizontalFigure = new Trio();
             horizontalFigure.start();
+
             System.out.println(horizontalFigure.getName() + "thread name");
             try {
                 horizontalFigure.join(10000);

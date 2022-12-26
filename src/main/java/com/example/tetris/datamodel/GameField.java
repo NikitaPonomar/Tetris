@@ -24,6 +24,9 @@ public class GameField {
     private GameField() {
     }
 
+    private static class SingletonHolder {
+        public static final GameField HOLDER_INSTANCE=new GameField();
+    }
     public void handleKeyPressed(String receivedCommand) {
         HorizontalLine currentLine = GameField.getInstance().getField().get(presentLineNumber);
         String stringCurrentLine = currentLine.toString();
@@ -203,7 +206,7 @@ public class GameField {
         return currentLine;
     }
 
-    public static GameField getInstance() { return instance; }
+    public static GameField getInstance() { return SingletonHolder.HOLDER_INSTANCE; }
     public ObservableList<HorizontalLine> getField() { return field; }
     public HorizontalLine getTripleLine() { return tripleLine; }
     public void setTripleLine(HorizontalLine tripleLine) { this.tripleLine = tripleLine; }
