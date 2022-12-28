@@ -15,14 +15,6 @@ public  class Trio extends Figure {
         myFigure = GameField.getInstance().getTripleLine();
         GameField.getInstance().setPresentLineNumber(globalTimer);
         System.out.println(globalTimer);
-        if (globalTimer > 0) {
-            if (previousLine == null) {
-                GameField.getInstance().getField().set(globalTimer - 1, emptyLine);
-                previousLine = new HorizontalLine(emptyLine);
-            } else {
-                GameField.getInstance().getField().set(globalTimer - 1, previousLine);
-            }
-        }
 
         if (GameField.getInstance().getField().get(globalTimer).equals(emptyLine)) {
             GameField.getInstance().getField().set(globalTimer, myFigure);
@@ -44,6 +36,17 @@ public  class Trio extends Figure {
                 disable(); // Figure thread finished and  return control to ThreadCenter
             }
         }
+
+        if (globalTimer > 0) {
+            if (previousLine == null) {
+                GameField.getInstance().getField().set(globalTimer - 1, emptyLine);
+                previousLine = new HorizontalLine(emptyLine);
+            } else {
+                GameField.getInstance().getField().set(globalTimer - 1, previousLine);
+            }
+        }
+
+
     }
 
     public static void addFigureToLine (int position, HorizontalLine myFigure, HorizontalLine currentLine){

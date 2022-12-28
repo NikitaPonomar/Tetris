@@ -96,7 +96,10 @@ public class TetrisController {
         alert.setHeaderText("Exit from GAME without saving");
         alert.setContentText("Are you sure?");
         Optional<ButtonType> result = alert.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) System.exit(0);
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            task.disable();
+            System.exit(0);
+        }
     }
 
     @FXML
