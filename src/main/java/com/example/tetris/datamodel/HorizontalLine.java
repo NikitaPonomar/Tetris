@@ -2,9 +2,10 @@ package com.example.tetris.datamodel;
 
 import javafx.beans.property.SimpleStringProperty;
 
+import java.util.Collection;
+
 public class HorizontalLine implements Comparable<HorizontalLine> {
     private SimpleStringProperty col1,col2,col3,col4,col5,col6,col7,col8,col9,col10;
-
     public HorizontalLine(String col1, String col2, String col3, String col4,String col5,String col6,String col7,String col8,String col9,String col10) {
         // checking if property is null, if it is true, setting it as empty string
         setCol1(col1);
@@ -17,6 +18,18 @@ public class HorizontalLine implements Comparable<HorizontalLine> {
         setCol8(col8);
         setCol9(col9);
         setCol10(col10);
+    }
+
+    public HorizontalLine(String[] arr) {
+        // checking if property is null, if it is true, setting it as empty string
+            this(arr[0],arr[1],arr[2],arr[3],arr[4],arr[5],arr[6],arr[7],arr[8],arr[9]);
+    }
+
+
+
+    public HorizontalLine(Collection<String> col) {
+        // checking if property is null, if it is true, setting it as empty string
+        this(col.toArray(new String[0]));
     }
 
     public HorizontalLine(HorizontalLine horizontalLine) {
@@ -32,6 +45,7 @@ public class HorizontalLine implements Comparable<HorizontalLine> {
         setCol9(horizontalLine.getCol9());
         setCol10(horizontalLine.getCol10());
     }
+
 
     public SimpleStringProperty col1Property() {
         if (col1 == null) col1 = new SimpleStringProperty(this, "col1");
@@ -179,18 +193,31 @@ public class HorizontalLine implements Comparable<HorizontalLine> {
     public void setCol7(String col7) {
         col7Property().set(col7);
     }
-    public void setCol8(String col8) {
-        col8Property().set(col8);
-    }
-    public void setCol9(String col9) {
-        col9Property().set(col9);
-    }
-    public void setCol10(String col10) {
-        col10Property().set(col10);
-    }
+    public void setCol8(String col8) {col8Property().set(col8);}
+    public void setCol9(String col9) {col9Property().set(col9);}
+    public void setCol10(String col10) {col10Property().set(col10);}
 
     @Override
     public String toString() {
         return ""+getCol1() + getCol2() + getCol3() + getCol4() + getCol5() + getCol6() + getCol7() + getCol8() + getCol9() + getCol10();
     }
+    public  HorizontalLine toRightLeft (String receivedCommand){
+        // checking if any space in the figure line to shift right
+        if (receivedCommand.contentEquals("RIGHT")){
+            if (this.getCol10().contentEquals("0")){
+                return new HorizontalLine("0",this.getCol1(),this.getCol2(),this.getCol3(),this.getCol4(),
+                        this.getCol5(),this.getCol6(),this.getCol7(),this.getCol8(),this.getCol9());
+            }
+        }
+
+        if (receivedCommand.contentEquals("LEFT")){
+            if (this.getCol1().contentEquals("0")){
+                return new HorizontalLine(this.getCol2(),this.getCol3(),this.getCol4(),
+                        this.getCol5(),this.getCol6(),this.getCol7(),this.getCol8(),this.getCol9(),this.getCol10(),"0");
+            }
+        }
+
+        return this;
+    }
+
 }

@@ -5,7 +5,6 @@ public abstract class Figure extends Thread {
      int limitTimer = 19;
      int delay=400;
     HorizontalLine emptyLine = GameField.getInstance().getEmptyLine();
-
     private boolean isActive;
 
     public void disable(){ isActive=false; }
@@ -16,9 +15,10 @@ public abstract class Figure extends Thread {
 
     @Override
     public synchronized void run() {
-        while(isActive && globalTimer < limitTimer) {
+         while(isActive && globalTimer < limitTimer) {
+         //   for (globalTimer=0;isActive && globalTimer <= 19;  globalTimer++){
 
-            globalTimer++;
+           globalTimer++;
             // DO YOUR CODE HERE
 
             moveDown(); // may be it is better to send current Figure as object to moveDown class
@@ -28,12 +28,13 @@ public abstract class Figure extends Thread {
                     Thread.sleep(GameField.getInstance().getSpeed());
                 } catch (InterruptedException e) {
                     System.out.println(" wake up this thread! " + currentThread().getName());
+                    continue;
                 }
  //           GameField.getInstance().setSpeed(delay); //setting usual speed for next loop
 
         }
     }
-
+ 
     public abstract void moveDown();
 
     public int getDelay() {return delay;}

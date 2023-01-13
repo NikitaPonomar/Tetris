@@ -11,40 +11,43 @@ public  class Trio extends Figure {
 
     @Override
     public void moveDown() {
-        if (GameField.getInstance().getField().isEmpty()) return;
-        myFigure = GameField.getInstance().getTripleLine();
-        GameField.getInstance().setPresentLineNumber(globalTimer);
-        System.out.println(globalTimer);
-
-        if (GameField.getInstance().getField().get(globalTimer).equals(emptyLine)) {
-            GameField.getInstance().getField().set(globalTimer, myFigure);
-        } else  {
-            //trying to inject our figure in current line
-            //     mergedLine=currentLine;
-            currentLine = GameField.getInstance().getField().get(globalTimer);
-            String stringCurrentLine = currentLine.toString();
-            String stringMyFigure = myFigure.toString();
-            int valueIndex = stringMyFigure.indexOf("111");
-            if (stringCurrentLine.substring(valueIndex, valueIndex + 3).contentEquals("000")) {
-                //we found place for our figure
-                previousLine = new HorizontalLine(currentLine);
-                addFigureToLine(globalTimer,myFigure,currentLine);
+  //      synchronized (GameField.getInstance().getField()){
+            if (GameField.getInstance().getField().isEmpty()) return;
+            myFigure = GameField.getInstance().getTripleLine();
+            GameField.getInstance().setPresentLineNumber(globalTimer);
+            System.out.println(globalTimer);
+            if (GameField.getInstance().getField().get(globalTimer).equals(emptyLine)) {
+                GameField.getInstance().getField().set(globalTimer, myFigure);
             } else  {
-                if (GameField.getInstance().getField().isEmpty()) return;
-                currentLine = new HorizontalLine(GameField.getInstance().getField().get(globalTimer-1)) ;
-                addFigureToLine(globalTimer-1,myFigure,currentLine);
-                disable(); // Figure thread finished and  return control to ThreadCenter
+                //trying to inject our figure in current line
+                //     mergedLine=currentLine;
+                currentLine = GameField.getInstance().getField().get(globalTimer);
+                String stringCurrentLine = currentLine.toString();
+                String stringMyFigure = myFigure.toString();
+                int valueIndex = stringMyFigure.indexOf("111");
+                if (stringCurrentLine.substring(valueIndex, valueIndex + 3).contentEquals("000")) {
+                    //we found place for our figure
+                    previousLine = new HorizontalLine(currentLine);
+                    addFigureToLine(globalTimer,myFigure,currentLine);
+                } else  {
+                    if (GameField.getInstance().getField().isEmpty()) return;
+                    currentLine = new HorizontalLine(GameField.getInstance().getField().get(globalTimer-1)) ;
+                    addFigureToLine(globalTimer-1,myFigure,currentLine);
+                    disable(); // Figure thread finished and  return control to ThreadCenter
+                }
             }
-        }
+            if (globalTimer > 0) {
+                if (previousLine == null) {
+                    GameField.getInstance().getField().set(globalTimer - 1, emptyLine);
+                    previousLine = new HorizontalLine(emptyLine);
+                } else {
+                    GameField.getInstance().getField().set(globalTimer - 1, previousLine);
+                }
+            }
+     //   }
 
-        if (globalTimer > 0) {
-            if (previousLine == null) {
-                GameField.getInstance().getField().set(globalTimer - 1, emptyLine);
-                previousLine = new HorizontalLine(emptyLine);
-            } else {
-                GameField.getInstance().getField().set(globalTimer - 1, previousLine);
-            }
-        }
+
+
 
 
     }

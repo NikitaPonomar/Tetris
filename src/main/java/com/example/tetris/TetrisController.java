@@ -1,10 +1,11 @@
 package com.example.tetris;
 
-import com.example.tetris.datamodel.GameField;
-import com.example.tetris.datamodel.HorizontalLine;
-import com.example.tetris.datamodel.ThreadCenter;
+import com.example.tetris.datamodel.*;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.concurrent.Service;
+import javafx.concurrent.WorkerStateEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -21,6 +22,14 @@ public class TetrisController {
     //  public static Thread myThreads = new Thread(new ThreadCenter());
     public static ThreadCenter task = new ThreadCenter();
     public static Thread myThreads = new Thread(task);
+    public Service<Integer> delayService;
+
+    public static final int START_POSITION=0;
+    public static final int END_POSITION=19;
+    public int position = START_POSITION;
+
+    public volatile HorizontalLine movingFigure = generateNextFigure();
+
     @FXML
     private TableView<HorizontalLine> tableView;
 
@@ -29,6 +38,7 @@ public class TetrisController {
 
     @FXML
     public void initialize() {
+
 
         //binding our ObservableList with TableView
         GameField.getInstance().initiateEmptyField();
@@ -77,14 +87,96 @@ public class TetrisController {
 
         tableView.setMaxSize(315.0, 532.0);
 
+        delayService = new DelayService();
+
+
+        EventHandler<WorkerStateEvent> succeededCancelledHandler = new EventHandler<WorkerStateEvent>() {
+            @Override
+            public void handle(WorkerStateEvent event) {
+                System.out.println("Service executed, position  " + position);
+                    boolean success = GameField.getInstance().tryInsertToField(position, movingFigure);
+                    if (success) {
+                        System.out.println("success, position  " + position);
+                        if ((position - 1) >= START_POSITION) {
+                            GameField.getInstance().cleanPreviousLine(position - 1, movingFigure);
+                        }
+                        delayService.reset();
+                        delayService.start();
+
+                    } else {
+                        System.out.println("unsuccess, position" + position);
+                        movingFigure = generateNextFigure();
+                        position = START_POSITION;
+                        delayService.reset();
+                        delayService.start();
+                        return;
+                    }
+                if (position >= START_POSITION && position < END_POSITION) {
+                    position++;
+
+                }
+            }
+        };
+
+        delayService.setOnSucceeded(succeededCancelledHandler);
+        delayService.setOnCancelled(succeededCancelledHandler);
     }
 
 
     @FXML
-    public void handleOnTableKeyPressed(KeyEvent keyEvent) {
+    public  void handleOnTableKeyPressed(KeyEvent keyEvent) {
         String receivedCommand = keyEvent.getCode().toString();
         System.out.println(receivedCommand);
-        GameField.getInstance().handleKeyPressed(receivedCommand);
+        if (position > START_POSITION) {
+
+                switch (receivedCommand) {
+                    case "DOWN":
+                        // speed up the figure falling dawn
+                        delayService.cancel();
+                        break;
+                    case "RIGHT":
+                    case "LEFT":
+//                        EventHandler<WorkerStateEvent> succeededCancelledHandler = delayService.getOnCancelled();
+//                        delayService.setOnCancelled(null);
+//                        delayService.setOnSucceeded(null);
+                                HorizontalLine oldFigure=movingFigure;
+                                movingFigure= movingFigure.toRightLeft(receivedCommand);
+                                if (oldFigure.equals(movingFigure)) return;
+                        boolean success = GameField.getInstance().tryInsertToField(position,oldFigure, movingFigure);
+                        if (success) {
+                            System.out.println("success, position  " + position);
+                            if ((position - 1) >= START_POSITION) {
+                                GameField.getInstance().cleanPreviousLine(position - 1, oldFigure);
+                            }
+
+
+                        } else {
+                            System.out.println("unsuccess, position" + position);
+                            movingFigure = oldFigure;
+                        }
+
+                        if (position >= START_POSITION && position < END_POSITION) {
+                            position++;
+
+//                            delayService.setOnSucceeded(succeededCancelledHandler);
+//                            delayService.setOnCancelled(succeededCancelledHandler);
+//                            delayService.reset();
+//                            delayService.start();
+
+                        }
+
+
+
+                        break;
+
+
+                    default:
+
+                        return;
+                }
+
+        }
+
 
     }
 
@@ -172,18 +264,44 @@ public class TetrisController {
 
     @FXML
     private void launchGame() {
-        if (myThreads.isAlive()) {
-            //cleaning game field and finish figure thread by sending multiple IterationExceptions
-            while (GameField.getInstance().getCurrentFigureThread().isAlive()) {
-                GameField.getInstance().getCurrentFigureThread().interrupt();
-            }
-        } else {
-            myThreads.start();
+
+        if (delayService.getState() == Service.State.SUCCEEDED || delayService.getState() == Service.State.CANCELLED) {
+            delayService.reset();
+            delayService.start();
+        } else if (delayService.getState() == Service.State.READY) {
+            delayService.start();
+
         }
+        movingFigure = generateNextFigure();
+        position = START_POSITION;
         if (GameField.getInstance().getField().isEmpty()) {
             GameField.getInstance().initiateEmptyField();
         } else {
             GameField.getInstance().clearField();
         }
+
+
+/**
+ if (myThreads.isAlive()) {
+ //cleaning game field and finish figure thread by sending multiple IterationExceptions
+ while (GameField.getInstance().getCurrentFigureThread().isAlive()) {
+ GameField.getInstance().getCurrentFigureThread().interrupt();
+ }
+ } else {
+ myThreads.start();
+ }
+ if (GameField.getInstance().getField().isEmpty()) {
+ GameField.getInstance().initiateEmptyField();
+ } else {
+ GameField.getInstance().clearField();
+ }
+ */
+
     }
+
+    public HorizontalLine generateNextFigure() {
+        Three.reset();
+        return Three.three;
+    }
+
 }

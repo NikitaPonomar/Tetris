@@ -8,9 +8,10 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class GameField {
     private static GameField instance = new GameField();
-    private ObservableList<HorizontalLine> field = FXCollections.observableArrayList();
+    private  ObservableList<HorizontalLine> field = FXCollections.synchronizedObservableList(FXCollections.observableArrayList());
     public static final int FIELD_SIZE=20;
 
     private int score = 0;
@@ -26,39 +27,6 @@ public class GameField {
 
     private static class SingletonHolder {
         public static final GameField HOLDER_INSTANCE=new GameField();
-    }
-    public void handleKeyPressed(String receivedCommand) {
-        HorizontalLine currentLine = GameField.getInstance().getField().get(presentLineNumber);
-        String stringCurrentLine = currentLine.toString();
-        String stringMyFigure = GameField.getInstance().getTripleLine().toString();
-
-        switch (receivedCommand) {
-            case "RIGHT":
-                int index = stringMyFigure.indexOf("1110");
-                if (index > -1 && (index + 4) <= stringCurrentLine.length() && stringCurrentLine.substring(index, index + 4).contentEquals("1110")) {
-                    stringMyFigure = stringMyFigure.replace("1110", "0111");
-                }
-                break;
-
-            case "LEFT":
-                int index2 = stringMyFigure.indexOf("0111");
-                if (index2 > -1 && stringCurrentLine.substring(index2, index2 + 4).contentEquals("0111")) {
-                    stringMyFigure = stringMyFigure.replace("0111", "1110");
-                }
-                break;
-
-            case "DOWN":
-                 // speed up the figure falling dawn
-                getCurrentFigureThread().interrupt();
-                break;
-
-            default:
-                return;
-        }
-
-        String[] myStrings = stringMyFigure.split("");
-        HorizontalLine myFigure = new HorizontalLine(myStrings[0], myStrings[1], myStrings[2], myStrings[3], myStrings[4], myStrings[5], myStrings[6], myStrings[7], myStrings[8], myStrings[9]);
-        GameField.getInstance().setTripleLine(myFigure);
     }
 
 
@@ -95,7 +63,7 @@ public class GameField {
                 // cleaning our field from the moving figure to proper store field
                 if (i==getPresentLineNumber()) {
                     line =new HorizontalLine(line);
-                    line =removeFigureFromLine(i,getTripleLine(),line);
+                    line =removeFigureFromLine(getTripleLine(),line);
                 }
                     bw.write("<HorizontalLine>\n" +
                             "    <col1>" + line.getCol1() + "</col1>\n" +
@@ -118,6 +86,7 @@ public class GameField {
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
+
     }
 
     public Alert.AlertType loadFromFile(File file) {
@@ -192,17 +161,17 @@ public class GameField {
         }
     }
 
-    public HorizontalLine removeFigureFromLine (int position, HorizontalLine myFigure, HorizontalLine currentLine){
-        if (myFigure.getCol1().contentEquals("1")) currentLine.setCol1("0");
-        if (myFigure.getCol2().contentEquals("1")) currentLine.setCol2("0");
-        if (myFigure.getCol3().contentEquals("1")) currentLine.setCol3("0");
-        if (myFigure.getCol4().contentEquals("1")) currentLine.setCol4("0");
-        if (myFigure.getCol5().contentEquals("1")) currentLine.setCol5("0");
-        if (myFigure.getCol6().contentEquals("1")) currentLine.setCol6("0");
-        if (myFigure.getCol7().contentEquals("1")) currentLine.setCol7("0");
-        if (myFigure.getCol8().contentEquals("1")) currentLine.setCol8("0");
-        if (myFigure.getCol9().contentEquals("1")) currentLine.setCol9("0");
-        if (myFigure.getCol10().contentEquals("1")) currentLine.setCol10("0");
+    public HorizontalLine removeFigureFromLine ( HorizontalLine figureToRemove, HorizontalLine currentLine){
+        if (figureToRemove.getCol1().contentEquals("1")) currentLine.setCol1("0");
+        if (figureToRemove.getCol2().contentEquals("1")) currentLine.setCol2("0");
+        if (figureToRemove.getCol3().contentEquals("1")) currentLine.setCol3("0");
+        if (figureToRemove.getCol4().contentEquals("1")) currentLine.setCol4("0");
+        if (figureToRemove.getCol5().contentEquals("1")) currentLine.setCol5("0");
+        if (figureToRemove.getCol6().contentEquals("1")) currentLine.setCol6("0");
+        if (figureToRemove.getCol7().contentEquals("1")) currentLine.setCol7("0");
+        if (figureToRemove.getCol8().contentEquals("1")) currentLine.setCol8("0");
+        if (figureToRemove.getCol9().contentEquals("1")) currentLine.setCol9("0");
+        if (figureToRemove.getCol10().contentEquals("1")) currentLine.setCol10("0");
         return currentLine;
     }
 
@@ -217,4 +186,102 @@ public class GameField {
     public void setSpeed(int speed) { this.speed = speed;}
     public Thread getCurrentFigureThread() { return currentFigureThread; }
     public void setCurrentFigureThread(Thread currentFigureThread) { this.currentFigureThread = currentFigureThread; }
+
+    public boolean tryInsertToField(int position, HorizontalLine myFigure){
+        if (!field.isEmpty()){
+            System.out.println(Thread.currentThread().getName());
+            HorizontalLine currentLine = field.get(position);
+            String stringCurrentLine =currentLine.toString();
+            String stringMyFigure = myFigure.toString();
+            for (int i=0;i<10;i++){
+                if(stringMyFigure.charAt(i) == '1' && stringCurrentLine.charAt(i) == '1') {
+                    return false;
+                }
+            }
+
+            if (myFigure.getCol1().contentEquals("1")) currentLine.setCol1("1");
+            if (myFigure.getCol2().contentEquals("1")) currentLine.setCol2("1");
+            if (myFigure.getCol3().contentEquals("1")) currentLine.setCol3("1");
+            if (myFigure.getCol4().contentEquals("1")) currentLine.setCol4("1");
+            if (myFigure.getCol5().contentEquals("1")) currentLine.setCol5("1");
+            if (myFigure.getCol6().contentEquals("1")) currentLine.setCol6("1");
+            if (myFigure.getCol7().contentEquals("1")) currentLine.setCol7("1");
+            if (myFigure.getCol8().contentEquals("1")) currentLine.setCol8("1");
+            if (myFigure.getCol9().contentEquals("1")) currentLine.setCol9("1");
+            if (myFigure.getCol10().contentEquals("1")) currentLine.setCol10("1");
+            field.set(position,currentLine);
+            return true;
+        }
+        System.out.println("field is empty for unknown reason");
+        return false;
+    }
+    public boolean tryInsertToField(int position, HorizontalLine oldFigure, HorizontalLine newFigure){
+        if (!field.isEmpty()){
+            removeFigureFromLine(oldFigure,field.get(position));
+            if (tryInsertToField(position,newFigure)){
+                return true;
+            } else{
+                if (!tryInsertToField(position,oldFigure)) throw new RuntimeException("exception during moving figure to RIGHT/LEFT");
+                return false;
+            }
+
+        }
+        System.out.println("field is empty for unknown reason");
+        return false;
+    }
+
+//    public boolean  tryInsertToField(int position, HorizontalLine oldFigure, HorizontalLine newFigure){
+//        if (!field.isEmpty()){
+//            System.out.println("oldFigure = " + oldFigure + "newFigure = "+newFigure);
+//            String stringOldFigure=oldFigure.toString();
+//            String oldBody =stringOldFigure.replaceAll("0","");
+//            int indexOld = stringOldFigure.indexOf(oldBody);
+//            int lengthOld=oldBody.length();
+//            HorizontalLine lineBeforeMoving=field.get(position);
+//            String stringLineBeforeMoving=lineBeforeMoving.toString();
+//            String newLine;
+//            if (indexOld==0){
+//                 newLine= "0".repeat(lengthOld)+stringLineBeforeMoving.substring(lengthOld);
+//            } else {
+//                 newLine= stringLineBeforeMoving.substring(0,indexOld)+"0".repeat(lengthOld)+stringLineBeforeMoving.substring(indexOld+lengthOld);
+//            }
+//
+//            String stringNewFigure=newFigure.toString();
+//            String newBody =stringNewFigure.replaceAll("0","");
+//            int indexNew = stringNewFigure.indexOf(newBody);
+//            int lengthNew=newBody.length();
+//            if (newLine.substring(indexNew,indexNew+lengthNew).contentEquals("0".repeat(lengthNew))){
+//                if (indexNew==0){
+//                    newLine= newBody+newLine.substring(lengthNew);
+//                    field.set(position,new HorizontalLine(newLine.split("")));
+//                    return true;
+//                } else {
+//                    newLine= newLine.substring(0,indexNew)+newBody+newLine.substring(indexNew+lengthNew);
+//                    field.set(position,new HorizontalLine(newLine.split("")));
+//                    return true;
+//                }
+//            } else {
+//                System.out.println("could not find the place to rotate figure to RIGHT/LEFT");
+//                return false;
+//            }
+//        }
+//        System.out.println("field is empty for unknown reason");
+//        return false;
+//
+//    }
+
+   public void cleanPreviousLine (int position, HorizontalLine myFigure) {
+       HorizontalLine currentLine = field.get(position);
+       if (myFigure.getCol1().contentEquals("1")) currentLine.setCol1("0");
+       if (myFigure.getCol2().contentEquals("1")) currentLine.setCol2("0");
+       if (myFigure.getCol3().contentEquals("1")) currentLine.setCol3("0");
+       if (myFigure.getCol4().contentEquals("1")) currentLine.setCol4("0");
+       if (myFigure.getCol5().contentEquals("1")) currentLine.setCol5("0");
+       if (myFigure.getCol6().contentEquals("1")) currentLine.setCol6("0");
+       if (myFigure.getCol7().contentEquals("1")) currentLine.setCol7("0");
+       if (myFigure.getCol8().contentEquals("1")) currentLine.setCol8("0");
+       if (myFigure.getCol9().contentEquals("1")) currentLine.setCol9("0");
+       if (myFigure.getCol10().contentEquals("1")) currentLine.setCol10("0");
+
+   }
 }
