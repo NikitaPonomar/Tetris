@@ -5,8 +5,6 @@ import javafx.collections.ObservableList;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 
 
@@ -14,7 +12,7 @@ public class GameField {
     private static GameField instance = new GameField();
     //   private  ObservableList<HorizontalLine> field = FXCollections.synchronizedObservableList(FXCollections.observableArrayList());
     String[][] staffArray = new String[20][10];
-    public ObservableList<ArrayList<String>> data = FXCollections.observableArrayList();
+    public ObservableList<String []> data = FXCollections.observableArrayList();
     public static final int FIELD_SIZE = 20;
 
     private int score = 0;
@@ -162,7 +160,7 @@ public class GameField {
 //            for (int j = 0; j < 10; j++) {
 //                staffArray[i][j] = "0";
 //            }
-           data.add(new ArrayList<>(Arrays.asList("0", "0", "0", "0", "0", "0", "0", "0", "0", "0")));
+           data.add(new String[]{"0", "0", "0", "0", "0", "0", "0", "0", "0", "0"});
         }
 
    //     data.addAll(Arrays.asList(staffArray));
@@ -177,7 +175,7 @@ public class GameField {
         return SingletonHolder.HOLDER_INSTANCE;
     }
 
-    public ObservableList<ArrayList<String>> getData() {
+    public ObservableList<String[]> getData() {
         return data;
     }
 
@@ -206,7 +204,7 @@ public class GameField {
                 int i = figureBody.length - 1;
                 for (int j = figureBody[i].length - 1; j >= 0; j--) {
                     if (figureBody[i][j].contentEquals("1") &&
-                            data.get(positionY - (figureBody.length - 1 - i)).get(positionX + j).contentEquals("1")) {
+                            data.get(positionY - (figureBody.length - 1 - i))[positionX + j].contentEquals("1")) {
                         System.out.println("no place to insert figure");
                         return false;
                     }
@@ -222,7 +220,7 @@ public class GameField {
                 for (int i=previousFigureBody.length-1;i>=0;i--){
                     for (int j=previousFigureBody[i].length-1;j>=0;j--){
                         if (previousFigureBody[i][j].contentEquals("1")) {
-                            data.get(previousY - (previousFigureBody.length - 1 - i)).set(previousX + j,"0");
+                            data.get(previousY - (previousFigureBody.length - 1 - i))[previousX + j]="0";
                         }
                     }
                 }
@@ -233,13 +231,15 @@ public class GameField {
                 for (int i = figureBody.length - 1; i >= 0; i--) {
                     for (int j = figureBody[i].length - 1; j >= 0; j--) {
                         if (figureBody[i][j].contentEquals("1") &&
-                                data.get(positionY - (figureBody.length - 1 - i)).get(positionX +j).contentEquals("0")) {
-                            data.get(positionY - (figureBody.length - 1 - i)).set(positionX + j,"1");
+                                data.get(positionY - (figureBody.length - 1 - i))[positionX +j].contentEquals("0")) {
+                            data.get(positionY - (figureBody.length - 1 - i))[positionX + j]="1";
                         } else {
                             throw new IllegalArgumentException("field changed during inserting the figure");
                         }
                     }
-                    ArrayList<String> tmp=new ArrayList<>(data.get(positionY - (figureBody.length - 1 - i)));
+                    //creating new Array to call Listener of ObservableValue
+                    String[] tmp=data.get(positionY - (figureBody.length - 1 - i)).clone();
+
                     data.set(positionY - (figureBody.length - 1 - i),tmp);
                 }
 

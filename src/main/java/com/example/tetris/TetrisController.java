@@ -22,7 +22,6 @@ import javafx.util.Callback;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 
 
 public class TetrisController {
@@ -35,9 +34,9 @@ public class TetrisController {
     public volatile boolean keyEventDelivered = true;
 
     @FXML
-    private TableView<ArrayList<String>> table = new TableView<>();
+    private TableView<String []> table = new TableView<>();
     @FXML
-    TableColumn<ArrayList<String>, String> tetrisCol1, tetrisCol2, tetrisCol3, tetrisCol4, tetrisCol5, tetrisCol6, tetrisCol7, tetrisCol8, tetrisCol9, tetrisCol10;
+    TableColumn<String [], String> tetrisCol1, tetrisCol2, tetrisCol3, tetrisCol4, tetrisCol5, tetrisCol6, tetrisCol7, tetrisCol8, tetrisCol9, tetrisCol10;
 
     @FXML
     public void initialize() {
@@ -49,24 +48,24 @@ public class TetrisController {
 
 
 
-        tetrisCol1.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<ArrayList<String>, String>, ObservableValue<String>>() {
+        tetrisCol1.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<String [], String>, ObservableValue<String>>() {
             @Override
-            public ObservableValue<String> call(TableColumn.CellDataFeatures<ArrayList<String>, String> p) {
-                return new SimpleStringProperty(p.getValue().get(0));
+            public ObservableValue<String> call(TableColumn.CellDataFeatures<String [], String> p) {
+                return new SimpleStringProperty(p.getValue()[0]);
             }
         });
-        tetrisCol2.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().get(1)));
-        tetrisCol3.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().get(2)));
-        tetrisCol4.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().get(3)));
-        tetrisCol5.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().get(4)));
-        tetrisCol6.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().get(5)));
-        tetrisCol7.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().get(6)));
-        tetrisCol8.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().get(7)));
-        tetrisCol9.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().get(8)));
-        tetrisCol10.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().get(9)));
+        tetrisCol2.setCellValueFactory(p -> new SimpleStringProperty(p.getValue()[1]));
+        tetrisCol3.setCellValueFactory(p -> new SimpleStringProperty(p.getValue()[2]));
+        tetrisCol4.setCellValueFactory(p -> new SimpleStringProperty(p.getValue()[3]));
+        tetrisCol5.setCellValueFactory(p -> new SimpleStringProperty(p.getValue()[4]));
+        tetrisCol6.setCellValueFactory(p -> new SimpleStringProperty(p.getValue()[5]));
+        tetrisCol7.setCellValueFactory(p -> new SimpleStringProperty(p.getValue()[6]));
+        tetrisCol8.setCellValueFactory(p -> new SimpleStringProperty(p.getValue()[7]));
+        tetrisCol9.setCellValueFactory(p -> new SimpleStringProperty(p.getValue()[8]));
+        tetrisCol10.setCellValueFactory(p -> new SimpleStringProperty(p.getValue()[9]));
 
         tetrisCol1.setCellFactory(col -> {
-            TableCell<ArrayList<String>, String> cell = new TableCell<>();
+            TableCell<String [], String> cell = new TableCell<>();
 
             cell.itemProperty().addListener((observableValue, o, newValue) -> {
                 if (newValue != null) {
@@ -109,9 +108,9 @@ public class TetrisController {
              //       ObservableList<String[]> testList = GameField.getInstance().getData();
 
                     for (int i = 0; i < table.getItems().size(); i++) {
-                        ArrayList<String> tmp = table.getItems().get(i);
-                        for (int j = 0; j < tmp.size(); j++) {
-                            System.out.print(tmp.get(j));
+                        String [] tmp = table.getItems().get(i);
+                        for (int j = 0; j < tmp.length; j++) {
+                            System.out.print(tmp[j]);
                         }
                         System.out.print("\n");
                     }
