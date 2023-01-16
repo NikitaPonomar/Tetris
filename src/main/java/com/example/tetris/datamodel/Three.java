@@ -1,21 +1,21 @@
 package com.example.tetris.datamodel;
 
-public class Three {
-    public static volatile HorizontalLine three = new  HorizontalLine("0","0","0","1","1","1","0","0","0","0");
+import java.util.LinkedList;
 
+public class Three extends Figure {
 
-    public static void reset(){
-        three.setCol1("0");
-        three.setCol2("0");
-        three.setCol3("0");
-        three.setCol4("1");
-        three.setCol5("1");
-        three.setCol6("1");
-        three.setCol7("0");
-        three.setCol8("0");
-        three.setCol9("0");
-        three.setCol10("0");
+    public Three(String[][] figureBody, int positionY, int positionX, LinkedList<Figure> history) {
+        super(figureBody, positionY, positionX, history);
     }
 
 
+    public static Figure createFigure() {
+
+        String [][] threeFigure=new String[][] {{"1", "1", "1"}};
+        int positionY=0;
+        int positionX=3;
+        LinkedList<Figure> history =new LinkedList<>();
+        return new Figure(threeFigure,positionY,positionX,history);
+
+    }
 }

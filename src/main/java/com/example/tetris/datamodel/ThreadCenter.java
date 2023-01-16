@@ -14,18 +14,18 @@ public class ThreadCenter implements Runnable {
     @Override
     public void run() {
         while (isActive){
-
-            horizontalFigure = new Trio();
-            horizontalFigure.start();
-
-            System.out.println(horizontalFigure.getName() + "thread name");
-            try {
-                horizontalFigure.join(10000);
-            } catch (InterruptedException e) {
-                System.out.println("Triple thread has been interrupted by InterruptedException");
-                continue;
-            }
-            GameField.getInstance().calcHorizontalLine();
+//
+//            horizontalFigure = new Trio();
+//            horizontalFigure.start();
+//
+//            System.out.println(horizontalFigure.getName() + "thread name");
+//            try {
+//                horizontalFigure.join(10000);
+//            } catch (InterruptedException e) {
+//                System.out.println("Triple thread has been interrupted by InterruptedException");
+//                continue;
+//            }
+//            GameField.getInstance().calcHorizontalLine();
         }
     }
 

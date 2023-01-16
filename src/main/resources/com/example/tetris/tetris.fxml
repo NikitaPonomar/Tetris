@@ -17,7 +17,7 @@
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
     </padding>
     <center>
-        <TableView fx:id="tableView" fixedCellSize="25.0" onKeyPressed="#handleOnTableKeyPressed" prefWidth="532.0"  prefHeight="315.0" stylesheets="@tableViewStyle.css" BorderPane.alignment="CENTER">
+        <TableView fx:id="table" fixedCellSize="25.0" onKeyPressed="#handleOnTableKeyPressed" prefWidth="532.0"  prefHeight="315.0" stylesheets="@tableViewStyle.css" BorderPane.alignment="CENTER">
             <columnResizePolicy>
                 <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
             </columnResizePolicy>
@@ -49,7 +49,7 @@
             <menus>
                 <Menu mnemonicParsing="false" text="File">
                     <items>
-                        <MenuItem accelerator="Ctrl+L" mnemonicParsing="false" onAction="#handleLoadFromFile" text="Load game from file" />
+                        <!--MenuItem accelerator="Ctrl+L" mnemonicParsing="false" onAction="#handleLoadFromFile" text="Load game from file" /-->
                         <MenuItem mnemonicParsing="false" onAction="#launchGame" text="Start new game" fx:id="menuLaunch"/>
                         <MenuItem mnemonicParsing="false" onAction="#handleStoreToFile" text="Save game to file" />
                         <MenuItem mnemonicParsing="false" onAction="#handleExit" text="Exit" />

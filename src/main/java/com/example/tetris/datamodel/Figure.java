@@ -1,43 +1,65 @@
 package com.example.tetris.datamodel;
 
-public abstract class Figure extends Thread {
-     int globalTimer = -1;
-     int limitTimer = 19;
-     int delay=400;
-    HorizontalLine emptyLine = GameField.getInstance().getEmptyLine();
-    private boolean isActive;
+import java.util.LinkedList;
 
-    public void disable(){ isActive=false; }
+public class Figure {
+    protected String [][] figureBody;
+    protected int positionY;
+    protected int positionX;
+    protected LinkedList<Figure> history;
 
-    public Figure() {
-        isActive = true;
+    public Figure(String[][] figureBody, int positionY, int positionX, LinkedList<Figure> history) {
+        this.figureBody = figureBody;
+        this.positionY = positionY;
+        this.positionX = positionX;
+        this.history = history;
     }
 
-    @Override
-    public synchronized void run() {
-         while(isActive && globalTimer < limitTimer) {
-         //   for (globalTimer=0;isActive && globalTimer <= 19;  globalTimer++){
-
-           globalTimer++;
-            // DO YOUR CODE HERE
-
-            moveDown(); // may be it is better to send current Figure as object to moveDown class
-                try {
-                    System.out.println("current speed " + GameField.getInstance().getSpeed());
-                    GameField.getInstance().setCurrentFigureThread(currentThread());
-                    Thread.sleep(GameField.getInstance().getSpeed());
-                } catch (InterruptedException e) {
-                    System.out.println(" wake up this thread! " + currentThread().getName());
-                    continue;
-                }
- //           GameField.getInstance().setSpeed(delay); //setting usual speed for next loop
-
-        }
+    public Figure(Figure myFigure) {
+        this.figureBody = myFigure.getFigureBody();
+        this.positionY = myFigure.getPositionY();
+        this.positionX = myFigure.getPositionX();
+        this.history = new LinkedList<>(myFigure.getHistory());
     }
- 
-    public abstract void moveDown();
 
-    public int getDelay() {return delay;}
+    public String[][] getFigureBody() {
+        return figureBody;
+    }
 
-    public void setDelay(int delay) {this.delay = delay;}
+    public void setFigureBody(String[][] figureBody) {
+        this.figureBody = figureBody;
+    }
+
+    public int getPositionY() {
+        return positionY;
+    }
+
+    public void setPositionY(int positionY) {
+        this.positionY = positionY;
+    }
+
+    public int getPositionX() {
+        return positionX;
+    }
+
+    public void setPositionX(int positionX) {
+        this.positionX = positionX;
+    }
+
+    public LinkedList<Figure> getHistory() {
+        return history;
+    }
+
+    public void setHistory(LinkedList<Figure> history) {
+        this.history = history;
+    }
+
+    public static Figure createFigure(){
+        String [][] figureBody= {{"1"}};
+        int positionY=0;
+        int positionX=3;
+        LinkedList<Figure> history =new LinkedList<>();
+        return new Figure(figureBody,positionY,positionX,history);
+
+    }
 }

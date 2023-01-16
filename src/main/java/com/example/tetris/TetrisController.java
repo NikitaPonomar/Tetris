@@ -1,40 +1,43 @@
 package com.example.tetris;
 
-import com.example.tetris.datamodel.*;
+import com.example.tetris.datamodel.DelayService;
+import com.example.tetris.datamodel.Figure;
+import com.example.tetris.datamodel.GameField;
+import com.example.tetris.datamodel.Three;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Service;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.control.*;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
+import javafx.util.Callback;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Optional;
+import java.util.ArrayList;
 
 
 public class TetrisController {
-    //  public static Thread myThreads = new Thread(new ThreadCenter());
-    public static ThreadCenter task = new ThreadCenter();
-    public static Thread myThreads = new Thread(task);
     public Service<Integer> delayService;
 
-    public static final int START_POSITION=0;
-    public static final int END_POSITION=19;
-    public int position = START_POSITION;
+    public static final int START_POSITION = 0;
+    public static final int END_POSITION = 19;
 
-    public volatile HorizontalLine movingFigure = generateNextFigure();
-
-    @FXML
-    private TableView<HorizontalLine> tableView;
+    public Figure movingFigure = generateNextFigure();
+    public volatile boolean keyEventDelivered = true;
 
     @FXML
-    TableColumn<HorizontalLine, String> tetrisCol1, tetrisCol2, tetrisCol3, tetrisCol4, tetrisCol5, tetrisCol6, tetrisCol7, tetrisCol8, tetrisCol9, tetrisCol10;
+    private TableView<ArrayList<String>> table = new TableView<>();
+    @FXML
+    TableColumn<ArrayList<String>, String> tetrisCol1, tetrisCol2, tetrisCol3, tetrisCol4, tetrisCol5, tetrisCol6, tetrisCol7, tetrisCol8, tetrisCol9, tetrisCol10;
 
     @FXML
     public void initialize() {
@@ -42,27 +45,28 @@ public class TetrisController {
 
         //binding our ObservableList with TableView
         GameField.getInstance().initiateEmptyField();
-        tableView.setItems(GameField.getInstance().getField());
 
 
-        tetrisCol1.setCellValueFactory(p -> {
-            String formattedValue = p.getValue().col1Property().get()
-                    .toUpperCase();
-            return new SimpleStringProperty(formattedValue);
+
+
+        tetrisCol1.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<ArrayList<String>, String>, ObservableValue<String>>() {
+            @Override
+            public ObservableValue<String> call(TableColumn.CellDataFeatures<ArrayList<String>, String> p) {
+                return new SimpleStringProperty(p.getValue().get(0));
+            }
         });
-
-        tetrisCol2.setCellValueFactory(p -> p.getValue().col2Property());
-        tetrisCol3.setCellValueFactory(p -> p.getValue().col3Property());
-        tetrisCol4.setCellValueFactory(p -> p.getValue().col4Property());
-        tetrisCol5.setCellValueFactory(p -> p.getValue().col5Property());
-        tetrisCol6.setCellValueFactory(p -> p.getValue().col6Property());
-        tetrisCol7.setCellValueFactory(p -> p.getValue().col7Property());
-        tetrisCol8.setCellValueFactory(p -> p.getValue().col8Property());
-        tetrisCol9.setCellValueFactory(p -> p.getValue().col9Property());
-        tetrisCol10.setCellValueFactory(p -> p.getValue().col10Property());
+        tetrisCol2.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().get(1)));
+        tetrisCol3.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().get(2)));
+        tetrisCol4.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().get(3)));
+        tetrisCol5.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().get(4)));
+        tetrisCol6.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().get(5)));
+        tetrisCol7.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().get(6)));
+        tetrisCol8.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().get(7)));
+        tetrisCol9.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().get(8)));
+        tetrisCol10.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().get(9)));
 
         tetrisCol1.setCellFactory(col -> {
-            TableCell<HorizontalLine, String> cell = new TableCell<>();
+            TableCell<ArrayList<String>, String> cell = new TableCell<>();
 
             cell.itemProperty().addListener((observableValue, o, newValue) -> {
                 if (newValue != null) {
@@ -82,10 +86,11 @@ public class TetrisController {
         tetrisCol8.setCellFactory(tetrisCol1.getCellFactory());
         tetrisCol9.setCellFactory(tetrisCol1.getCellFactory());
         tetrisCol10.setCellFactory(tetrisCol1.getCellFactory());
+        table.setItems(GameField.getInstance().getData());
 
-        tableView.setSelectionModel(null);
+        table.setSelectionModel(null);
 
-        tableView.setMaxSize(315.0, 532.0);
+        table.setMaxSize(315.0, 532.0);
 
         delayService = new DelayService();
 
@@ -93,27 +98,36 @@ public class TetrisController {
         EventHandler<WorkerStateEvent> succeededCancelledHandler = new EventHandler<WorkerStateEvent>() {
             @Override
             public void handle(WorkerStateEvent event) {
-                System.out.println("Service executed, position  " + position);
-                    boolean success = GameField.getInstance().tryInsertToField(position, movingFigure);
-                    if (success) {
-                        System.out.println("success, position  " + position);
-                        if ((position - 1) >= START_POSITION) {
-                            GameField.getInstance().cleanPreviousLine(position - 1, movingFigure);
+                while (!keyEventDelivered) {
+                    Thread.onSpinWait();
+                }
+                System.out.println("Service executed, positionY = " + movingFigure.getPositionY() +
+                        " positionX = " + movingFigure.getPositionX());
+                boolean success = GameField.getInstance().tryInsertToNextLine(movingFigure);
+                if (success) {
+                    System.out.println("success, position  " + movingFigure.getPositionY());
+             //       ObservableList<String[]> testList = GameField.getInstance().getData();
+
+                    for (int i = 0; i < table.getItems().size(); i++) {
+                        ArrayList<String> tmp = table.getItems().get(i);
+                        for (int j = 0; j < tmp.size(); j++) {
+                            System.out.print(tmp.get(j));
                         }
-                        delayService.reset();
-                        delayService.start();
-
-                    } else {
-                        System.out.println("unsuccess, position" + position);
-                        movingFigure = generateNextFigure();
-                        position = START_POSITION;
-                        delayService.reset();
-                        delayService.start();
-                        return;
+                        System.out.print("\n");
                     }
-                if (position >= START_POSITION && position < END_POSITION) {
-                    position++;
+                    delayService.reset();
+                    delayService.start();
 
+
+                } else {
+                    System.out.println("unsuccess, position" + movingFigure.getPositionY());
+                    movingFigure = generateNextFigure();
+                    delayService.reset();
+                    delayService.start();
+                    return;
+                }
+                if (movingFigure.getPositionY() > END_POSITION) {
+                    movingFigure = generateNextFigure();
                 }
             }
         };
@@ -124,74 +138,76 @@ public class TetrisController {
 
 
     @FXML
-    public  void handleOnTableKeyPressed(KeyEvent keyEvent) {
+    public void handleOnTableKeyPressed(KeyEvent keyEvent) {
+/*        keyEventDelivered = false;
         String receivedCommand = keyEvent.getCode().toString();
         System.out.println(receivedCommand);
-        if (position > START_POSITION) {
+        if (movingFigure.getPositionY() > START_POSITION) {
 
-                switch (receivedCommand) {
-                    case "DOWN":
-                        // speed up the figure falling dawn
-                        delayService.cancel();
-                        break;
-                    case "RIGHT":
-                    case "LEFT":
+            switch (receivedCommand) {
+                case "DOWN":
+                    // speed up the figure falling dawn
+                    delayService.cancel();
+                    keyEventDelivered = true;
+                    break;
+                case "RIGHT":
+                case "LEFT":
 //                        EventHandler<WorkerStateEvent> succeededCancelledHandler = delayService.getOnCancelled();
 //                        delayService.setOnCancelled(null);
 //                        delayService.setOnSucceeded(null);
-                                HorizontalLine oldFigure=movingFigure;
-                                movingFigure= movingFigure.toRightLeft(receivedCommand);
-                                if (oldFigure.equals(movingFigure)) return;
-                        boolean success = GameField.getInstance().tryInsertToField(position,oldFigure, movingFigure);
-                        if (success) {
-                            System.out.println("success, position  " + position);
-                            if ((position - 1) >= START_POSITION) {
-                                GameField.getInstance().cleanPreviousLine(position - 1, oldFigure);
-                            }
-
-
-                        } else {
-                            System.out.println("unsuccess, position" + position);
-                            movingFigure = oldFigure;
+                    HorizontalLine oldFigure = movingFigure;
+                    movingFigure = movingFigure.toRightLeft(receivedCommand);
+                    if (oldFigure.equals(movingFigure)) return;
+                    boolean success = GameField.getInstance().tryInsertToNextLine(positionY, oldFigure, movingFigure);
+                    if (success) {
+                        System.out.println("success, position  " + positionY);
+                        if ((positionY - 1) >= START_POSITION) {
+                            GameField.getInstance().cleanPreviousLine(positionY - 1, oldFigure);
                         }
 
-                        if (position >= START_POSITION && position < END_POSITION) {
-                            position++;
+
+                    } else {
+                        System.out.println("unsuccess, position" + positionY);
+                        movingFigure = oldFigure;
+                    }
+
+                    if (positionY >= START_POSITION && positionY < END_POSITION) {
+                        positionY++;
 
 //                            delayService.setOnSucceeded(succeededCancelledHandler);
 //                            delayService.setOnCancelled(succeededCancelledHandler);
 //                            delayService.reset();
 //                            delayService.start();
 
-                        }
+                    }
+
+                    keyEventDelivered = true;
+
+                    break;
 
 
-
-                        break;
-
-
-                    default:
-
-                        return;
-                }
+                default:
+                    keyEventDelivered = true;
+                    return;
+            }
 
         }
-
+*/
 
     }
 
     @FXML
     private void handleExit() {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.initOwner(tableView.getScene().getWindow());
-        alert.setTitle("Exit");
-        alert.setHeaderText("Exit from GAME without saving");
-        alert.setContentText("Are you sure?");
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
-            task.disable();
-            System.exit(0);
-        }
+//        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+//        alert.initOwner(table.getScene().getWindow());
+//        alert.setTitle("Exit");
+//        alert.setHeaderText("Exit from GAME without saving");
+//        alert.setContentText("Are you sure?");
+//        Optional<ButtonType> result = alert.showAndWait();
+//        if (result.isPresent() && result.get() == ButtonType.OK) {
+//            task.disable();
+//            System.exit(0);
+//        }
     }
 
     @FXML
@@ -202,7 +218,7 @@ public class TetrisController {
                 new FileChooser.ExtensionFilter("XML Files", "*.xml"));
 
         try {
-            File file = chooser.showSaveDialog(tableView.getScene().getWindow());
+            File file = chooser.showSaveDialog(table.getScene().getWindow());
             if (file == null) return;
             GameField.getInstance().storeToFile(file);
         } catch (IOException e) {
@@ -212,40 +228,40 @@ public class TetrisController {
 
     @FXML
     private void handleLoadFromFile() {
-        FileChooser chooser = new FileChooser();
-        chooser.setTitle("Open Resource File");
-        chooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("XML Files", "*.xml"));
-
-        File file = null;
-
-        try {
-            file = chooser.showOpenDialog(tableView.getScene().getWindow());
-            if (file == null) return;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return;
-        }
-
-        if (myThreads.isAlive()) {
-            //cleaning game field and finish figure thread by sending multiple IterationExceptions
-            while (GameField.getInstance().getCurrentFigureThread().isAlive()) {
-                GameField.getInstance().getCurrentFigureThread().interrupt();
-            }
-            GameField.getInstance().getField().clear();
-        }
-
-        Alert.AlertType loadResult = GameField.getInstance().loadFromFile(file);
-        Alert alert = new Alert(loadResult);
-        if (loadResult == Alert.AlertType.WARNING) {
-            alert.setHeaderText("No new available contacts in file:\n" + file.getPath());
-        } else if (loadResult == Alert.AlertType.WARNING) {
-            alert.setHeaderText("Incorrect file:\n" + file.getPath());
-        } else {
-            alert.setHeaderText("Game was loaded successfully!");
-        }
-        Optional<ButtonType> opt = alert.showAndWait();
-        if (!myThreads.isAlive()) myThreads.start();
+//        FileChooser chooser = new FileChooser();
+//        chooser.setTitle("Open Resource File");
+//        chooser.getExtensionFilters().addAll(
+//                new FileChooser.ExtensionFilter("XML Files", "*.xml"));
+//
+//        File file = null;
+//
+//        try {
+//            file = chooser.showOpenDialog(table.getScene().getWindow());
+//            if (file == null) return;
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return;
+//        }
+//
+//        if (myThreads.isAlive()) {
+//            //cleaning game field and finish figure thread by sending multiple IterationExceptions
+//            while (GameField.getInstance().getCurrentFigureThread().isAlive()) {
+//                GameField.getInstance().getCurrentFigureThread().interrupt();
+//            }
+//            GameField.getInstance().getField().clear();
+//        }
+//
+//        Alert.AlertType loadResult = GameField.getInstance().loadFromFile(file);
+//        Alert alert = new Alert(loadResult);
+//        if (loadResult == Alert.AlertType.WARNING) {
+//            alert.setHeaderText("No new available contacts in file:\n" + file.getPath());
+//        } else if (loadResult == Alert.AlertType.WARNING) {
+//            alert.setHeaderText("Incorrect file:\n" + file.getPath());
+//        } else {
+//            alert.setHeaderText("Game was loaded successfully!");
+//        }
+//        Optional<ButtonType> opt = alert.showAndWait();
+//        if (!myThreads.isAlive()) myThreads.start();
 
     }
 
@@ -264,6 +280,8 @@ public class TetrisController {
 
     @FXML
     private void launchGame() {
+        movingFigure = generateNextFigure();
+        GameField.getInstance().initiateEmptyField();
 
         if (delayService.getState() == Service.State.SUCCEEDED || delayService.getState() == Service.State.CANCELLED) {
             delayService.reset();
@@ -272,36 +290,11 @@ public class TetrisController {
             delayService.start();
 
         }
-        movingFigure = generateNextFigure();
-        position = START_POSITION;
-        if (GameField.getInstance().getField().isEmpty()) {
-            GameField.getInstance().initiateEmptyField();
-        } else {
-            GameField.getInstance().clearField();
-        }
-
-
-/**
- if (myThreads.isAlive()) {
- //cleaning game field and finish figure thread by sending multiple IterationExceptions
- while (GameField.getInstance().getCurrentFigureThread().isAlive()) {
- GameField.getInstance().getCurrentFigureThread().interrupt();
- }
- } else {
- myThreads.start();
- }
- if (GameField.getInstance().getField().isEmpty()) {
- GameField.getInstance().initiateEmptyField();
- } else {
- GameField.getInstance().clearField();
- }
- */
 
     }
 
-    public HorizontalLine generateNextFigure() {
-        Three.reset();
-        return Three.three;
+    public Figure generateNextFigure() {
+        return Three.createFigure();
     }
 
 }
