@@ -13,4 +13,9 @@
       <module name="Tetris" target="11" />
     </bytecodeTargetLevel>
   </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="Tetris" options="--add-exports=javafx.base/com.sun.javafx.event=ALL_UNNAMED,com.example.tetris" />
+    </option>
+  </component>
 </project>

@@ -1,5 +1,6 @@
 package com.example.tetris.datamodel;
 
+import java.util.Collections;
 import java.util.LinkedList;
 
 public class Three extends Figure {
@@ -12,9 +13,9 @@ public class Three extends Figure {
     public static Figure createFigure() {
 
         String [][] threeFigure=new String[][] {{"1", "1", "1"}};
-        int positionY=0;
+        int positionY=-1;
         int positionX=3;
-        LinkedList<Figure> history =new LinkedList<>();
+        LinkedList<Figure> history =new LinkedList<>(Collections.emptyList());
         return new Figure(threeFigure,positionY,positionX,history);
 
     }

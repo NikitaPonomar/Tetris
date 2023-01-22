@@ -1,12 +1,14 @@
 package com.example.tetris.datamodel;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 
 public class Figure {
-    protected String [][] figureBody;
-    protected int positionY;
-    protected int positionX;
-    protected LinkedList<Figure> history;
+    public String [][] figureBody;
+    public int positionY;
+    public int positionX;
+    public  LinkedList<Figure> history;
 
     public Figure(String[][] figureBody, int positionY, int positionX, LinkedList<Figure> history) {
         this.figureBody = figureBody;
@@ -19,7 +21,8 @@ public class Figure {
         this.figureBody = myFigure.getFigureBody();
         this.positionY = myFigure.getPositionY();
         this.positionX = myFigure.getPositionX();
-        this.history = new LinkedList<>(myFigure.getHistory());
+        this.history = new LinkedList<>(Collections.emptyList());
+
     }
 
     public String[][] getFigureBody() {
@@ -56,10 +59,20 @@ public class Figure {
 
     public static Figure createFigure(){
         String [][] figureBody= {{"1"}};
-        int positionY=0;
+        int positionY=-1;
         int positionX=3;
-        LinkedList<Figure> history =new LinkedList<>();
+        LinkedList<Figure> history =new LinkedList<>(Collections.emptyList());
         return new Figure(figureBody,positionY,positionX,history);
 
+    }
+
+    @Override
+    public String toString() {
+        return "Figure{" +
+                "figureBody=" + Arrays.deepToString(figureBody) +
+                ", positionY=" + positionY +
+                ", positionX=" + positionX +
+                ", history=" + history +
+                '}';
     }
 }

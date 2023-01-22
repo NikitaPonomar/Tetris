@@ -27,7 +27,7 @@
                   <Font name="Arial" size="16.0" />
                </font></Label>
             </placeholder>
-            <columns>
+            <!--columns>
                 <TableColumn fx:id="tetrisCol1" sortable="false" />
                 <TableColumn fx:id="tetrisCol2" sortable="false" />
                 <TableColumn fx:id="tetrisCol3" sortable="false" />
@@ -38,7 +38,7 @@
                 <TableColumn fx:id="tetrisCol8" sortable="false" />
                 <TableColumn fx:id="tetrisCol9" sortable="false" />
                 <TableColumn fx:id="tetrisCol10" sortable="false" />
-            </columns>
+            </columns-->
             <BorderPane.margin>
                 <Insets />
             </BorderPane.margin>
@@ -49,7 +49,7 @@
             <menus>
                 <Menu mnemonicParsing="false" text="File">
                     <items>
-                        <!--MenuItem accelerator="Ctrl+L" mnemonicParsing="false" onAction="#handleLoadFromFile" text="Load game from file" /-->
+                        <MenuItem accelerator="Ctrl+L" mnemonicParsing="false" onAction="#handleLoadFromFile" text="Load game from file" />
                         <MenuItem mnemonicParsing="false" onAction="#launchGame" text="Start new game" fx:id="menuLaunch"/>
                         <MenuItem mnemonicParsing="false" onAction="#handleStoreToFile" text="Save game to file" />
                         <MenuItem mnemonicParsing="false" onAction="#handleExit" text="Exit" />
