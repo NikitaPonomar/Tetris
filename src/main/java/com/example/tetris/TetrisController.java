@@ -138,7 +138,7 @@ public class TetrisController {
         table.setSelectionModel(null);
 
         //      table.setMaxSize(315.0, 532.0);
-        table.setMaxSize(315.0, 502.0);
+        table.setMaxSize(355.0, 532.0);
 
         delayService = new DelayService();
 
@@ -157,7 +157,7 @@ public class TetrisController {
                         delayService.reset();
                         delayService.start();
                 } else {
-                    System.out.println("unsuccess, position" + movingFigure.getPositionY());
+                    System.out.println("unsuccessful, position" + movingFigure.getPositionY());
                     movingFigure = generateNextFigure();
                         delayService.reset();
                         delayService.start();
@@ -222,6 +222,19 @@ public class TetrisController {
             }
             break;
 
+            case "P":
+                // Pause game
+                if (delayService.getOnSucceeded()==null) {
+                    delayService.setOnSucceeded(succeededCancelledHandler);
+                    delayService.setOnCancelled(succeededCancelledHandler);
+                    delayService.reset();
+                    delayService.start();
+                } else {
+                    delayService.setOnSucceeded(null);
+                    delayService.setOnCancelled(null);
+                }
+
+                break;
 
             default:
                 return;
