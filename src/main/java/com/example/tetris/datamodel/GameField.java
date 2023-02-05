@@ -1,5 +1,7 @@
 package com.example.tetris.datamodel;
 
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
@@ -18,8 +20,7 @@ public class GameField {
     public ObservableList<String[]> data = FXCollections.observableArrayList();
     public static final int FIELD_SIZE = 20;
     public static final int FIELD_WIDTH = 10;
-
-    private int score = 0;
+    public IntegerProperty score = new SimpleIntegerProperty(0);
     private int speed = 400;
 
     private int presentLineNumber = 0;
@@ -35,17 +36,34 @@ public class GameField {
 
 
     public void calcHorizontalLine() {
-        for (int i = data.size() - 1; i >= 0; i--) {
+        for (int i = FIELD_SIZE - 1; i >= 0; i--) {
             int sum = 0;
             for (int j = FIELD_WIDTH - 1; j >= 0; j--) {
                 if (data.get(i)[j].contentEquals("1")) sum++;
             }
             if (sum == 10) {
-                score++;
+                score.set(score.get()+1);
+             //   score++;
                 System.out.println(" your score: " + score);
-                data.set(i, new String[]{"0", "0", "0", "0", "0", "0", "0", "0", "0", "0"});
+            //    data.set(i, new String[]{"0", "0", "0", "0", "0", "0", "0", "0", "0", "0"});
+                data.remove(i);
+                data.add(0,new String[]{"0", "0", "0", "0", "0", "0", "0", "0", "0", "0"});
             }
         }
+    }
+
+    public List<String[]> deleteFigureFromCopyOfField (Figure figureToRemove){
+        List<String[]> tmpList = new ArrayList<>(data);
+        int removePositionY = figureToRemove.getPositionY();
+        int removePositionX = figureToRemove.getPositionX();
+        for (int i = figureToRemove.getFigureBody().length - 1; i >= 0; i--) {
+            for (int j = figureToRemove.getFigureBody()[i].length - 1; j >= 0; j--) {
+                if (figureToRemove.getFigureBody()[i][j].contentEquals("1")) {
+                    tmpList.get(removePositionY - (figureToRemove.getFigureBody().length - 1 - i))[removePositionX + j] = "0";
+                }
+            }
+        }
+        return tmpList;
     }
 
     public void storeToFile(File file, Figure figureToRemove) throws IOException {
@@ -54,21 +72,13 @@ public class GameField {
             bw.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                     "<soap:Envelope xmlns:soap= \"https://www.svoy-med.ru/ContactBook-soap\">\n" +
                     "<soap:body>\n");
-            bw.write("<score>" + score + "</score>\n");
+            bw.write("<score>" + score.get() + "</score>\n");
             bw.write("<speed>" + speed + "</speed>\n");
             bw.write("<field>\n");
 
             //delete movingFugure from copy of Field
-            List<String[]> tmpList = new ArrayList<>(data);
-            int removePositionY = figureToRemove.getPositionY();
-            int removePositionX = figureToRemove.getPositionX();
-            for (int i = figureToRemove.getFigureBody().length - 1; i >= 0; i--) {
-                for (int j = figureToRemove.getFigureBody()[i].length - 1; j >= 0; j--) {
-                    if (figureToRemove.getFigureBody()[i][j].contentEquals("1")) {
-                        tmpList.get(removePositionY - (figureToRemove.getFigureBody().length - 1 - i))[removePositionX + j] = "0";
-                    }
-                }
-            }
+            List<String[]> tmpList = deleteFigureFromCopyOfField(figureToRemove);
+
 
             //saving field to file
             for (int i = 0; i < tmpList.size(); i++) {
@@ -102,7 +112,7 @@ public class GameField {
         }
 
 
-        score = Integer.parseInt(parseStringValue(commonString, "<score>", "</score>"));
+        score = new SimpleIntegerProperty( Integer.parseInt(parseStringValue(commonString, "<score>", "</score>")));;
         speed = Integer.parseInt(parseStringValue(commonString, "<speed>", "</speed>"));
         commonString=parseStringValue(commonString, "<field>", "</field>");
 
@@ -203,7 +213,8 @@ public class GameField {
                             data.get(positionY - (figureBody.length - 1 - i))[positionX + j].contentEquals("0")) {
                         data.get(positionY - (figureBody.length - 1 - i))[positionX + j] = "1";
                     } else {
-                        throw new IllegalArgumentException("field changed during inserting the figure");
+                  //      throw new IllegalArgumentException("field changed during inserting the figure");
+
                     }
                 }
                 //creating new Array to call Listener of ObservableValue
@@ -234,7 +245,7 @@ public class GameField {
 
             //checking if any place to move figure to right/left in the field
             {
-                if (positionY < 0) {
+                if (positionY- figureBody.length+1 < 0)  {
                     System.out.println("Next Figure has not in field yet");
                     return false;
                 }
@@ -266,7 +277,7 @@ public class GameField {
                             data.get(positionY - (figureBody.length - 1 - i))[positionX + j + step].contentEquals("0")) {
                         data.get(positionY - (figureBody.length - 1 - i))[positionX + j + step] = "1";
                     } else {
-                        throw new IllegalArgumentException("field changed during inserting the figure");
+                //        throw new IllegalArgumentException("field changed during inserting the figure");
                     }
                 }
                 //creating new Array to call Listener of ObservableValue
@@ -277,6 +288,71 @@ public class GameField {
 
             movingFigure.setPositionX(positionX + step);
             movingFigure.getHistory().add(new Figure(movingFigure));
+            return true;
+        }
+        System.out.println("field is empty for unknown reason");
+        return false;
+    }
+
+    public boolean tryInsertTurnedFigureToField(Figure movingFigure) {
+        if (!data.isEmpty()) {
+            String[][] figureBody = movingFigure.getFigureBody();
+            int positionY = movingFigure.getPositionY();
+            int positionX = movingFigure.getPositionX();
+            boolean spin=movingFigure.isSpin();
+            LinkedList<Figure> history = movingFigure.getHistory();
+
+            //checking if it is possible to turn figure in the field
+                if (positionY- figureBody.length+1 < 0) {
+                    System.out.println("Next Figure has not in field yet");
+                    return false;
+                }
+
+                //1. delete movingFigure from copy of Field
+                List<String[]> tmpList = deleteFigureFromCopyOfField(movingFigure);
+
+                //2. Checking the place in this new cleaned up field
+
+                Figure tmpFigure=movingFigure. rotateFigure();
+                if (tmpFigure.getPositionY()-tmpFigure.getFigureBody().length+1<0) return false;
+
+                for (int i=tmpFigure.getFigureBody().length-1;i>=0;i--){
+                    for (int j=tmpFigure.getFigureBody()[0].length-1; j>=0; j--) {
+                        if (tmpFigure.getFigureBody()[i][j].contentEquals("1") &&
+                                tmpList.get(tmpFigure.getPositionY() - (tmpFigure.getFigureBody().length - 1 - i))[tmpFigure.getPositionX() + j].contentEquals("1")){
+                            System.out.println("no place to turn the Figure");
+                            return false;
+                        }
+                    }
+                }
+
+
+
+            //removing previous figure from field
+            removePreviousFigure(history);
+
+            // inserting new tmpFigure to field
+            for (int i = tmpFigure.getFigureBody().length - 1; i >= 0; i--) {
+                for (int j =tmpFigure.getFigureBody()[i].length - 1; j >= 0; j--) {
+                    if (tmpFigure.getFigureBody()[i][j].contentEquals("1") &&
+                            data.get(tmpFigure.getPositionY() - (tmpFigure.getFigureBody().length - 1 - i))[tmpFigure.getPositionX() + j].contentEquals("0")) {
+                        data.get(tmpFigure.getPositionY() - (tmpFigure.getFigureBody().length - 1 - i))[tmpFigure.getPositionX() + j] = "1";
+                    } else {
+                   //     throw new IllegalArgumentException("field changed during inserting the figure");
+                    }
+                }
+                //creating new Array to call Listener of ObservableValue
+                String[] tmp = data.get(tmpFigure.getPositionY() - (tmpFigure.getFigureBody().length - 1 - i)).clone();
+
+                data.set(tmpFigure.getPositionY() - (tmpFigure.getFigureBody().length- 1 - i), tmp);
+            }
+
+            movingFigure.setFigureBody(tmpFigure.getFigureBody());
+            movingFigure.setPositionY(tmpFigure.getPositionY());
+            movingFigure.setPositionX(tmpFigure.getPositionX());
+            movingFigure.setSpin(tmpFigure.isSpin());
+            movingFigure.getHistory().add(new Figure(movingFigure));
+
             return true;
         }
         System.out.println("field is empty for unknown reason");

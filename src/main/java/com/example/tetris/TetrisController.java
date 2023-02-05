@@ -1,9 +1,6 @@
 package com.example.tetris;
 
-import com.example.tetris.datamodel.DelayService;
-import com.example.tetris.datamodel.Figure;
-import com.example.tetris.datamodel.GameField;
-import com.example.tetris.datamodel.Three;
+import com.example.tetris.datamodel.*;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
@@ -24,6 +21,7 @@ import javafx.util.Callback;
 import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
+import java.util.Random;
 
 
 public class TetrisController {
@@ -37,6 +35,9 @@ public class TetrisController {
 
     @FXML
     private TableView<String[]> table = new TableView<>();
+
+    @FXML
+    private Label scoreLabel;
 //    @FXML
 //    TableColumn<String [], String> tetrisCol1, tetrisCol2, tetrisCol3, tetrisCol4, tetrisCol5, tetrisCol6, tetrisCol7, tetrisCol8, tetrisCol9, tetrisCol10;
 
@@ -140,6 +141,8 @@ public class TetrisController {
         //      table.setMaxSize(315.0, 532.0);
         table.setMaxSize(355.0, 532.0);
 
+        scoreLabel.textProperty().bind(GameField.getInstance().score.asString());
+
         delayService = new DelayService();
 
 
@@ -154,13 +157,13 @@ public class TetrisController {
                 boolean success = GameField.getInstance().tryInsertToNextLine(movingFigure);
                 if (success) {
                     System.out.println("success, position  " + movingFigure.getPositionY());
-                        delayService.reset();
-                        delayService.start();
+                    delayService.reset();
+                    delayService.start();
                 } else {
                     System.out.println("unsuccessful, position" + movingFigure.getPositionY());
                     movingFigure = generateNextFigure();
-                        delayService.reset();
-                        delayService.start();
+                    delayService.reset();
+                    delayService.start();
                     return;
                 }
                 if (movingFigure.getPositionY() > END_POSITION) {
@@ -171,12 +174,13 @@ public class TetrisController {
 
         delayService.setOnSucceeded(succeededCancelledHandler);
         delayService.setOnCancelled(succeededCancelledHandler);
+
     }
 
 
     @FXML
     public void handleOnTableKeyPressed(KeyEvent keyEvent) {
-        if (keyEvent.getCode() == KeyCode.RIGHT || keyEvent.getCode() == KeyCode.LEFT) {
+        if (keyEvent.getCode() == KeyCode.RIGHT || keyEvent.getCode() == KeyCode.LEFT || keyEvent.getCode() == KeyCode.SPACE) {
             keyEventDelivered = false;   // using this variable to stop move down  during handleOnTableKeyPressed operation
         }
         String receivedCommand = keyEvent.getCode().toString();
@@ -222,9 +226,25 @@ public class TetrisController {
             }
             break;
 
+            case "SPACE":
+                //   Figure tmpFig=movingFigure.rotateFigure();
+                //  Figure turnedFigure=movingFigure.rotateFigure();
+            {
+                boolean success = GameField.getInstance().tryInsertTurnedFigureToField(movingFigure);
+                if (success) {
+                    System.out.println("success, positionX " + movingFigure.getPositionX() +
+                            " positionY " + movingFigure.getPositionY());
+                } else {
+                    System.out.println("unsuccessfull, positionX " + movingFigure.getPositionX() +
+                            " positionY " + movingFigure.getPositionY());
+                }
+            }
+            keyEventDelivered = true;
+            break;
+
             case "P":
                 // Pause game
-                if (delayService.getOnSucceeded()==null) {
+                if (delayService.getOnSucceeded() == null) {
                     delayService.setOnSucceeded(succeededCancelledHandler);
                     delayService.setOnCancelled(succeededCancelledHandler);
                     delayService.reset();
@@ -266,14 +286,14 @@ public class TetrisController {
                 new FileChooser.ExtensionFilter("XML files", "*.xml"));
 //        keyEventDelivered=false;
 
- //       isDialog = true;
-delayService.setOnSucceeded(null);
-delayService.setOnCancelled(null);
+        //       isDialog = true;
+        delayService.setOnSucceeded(null);
+        delayService.setOnCancelled(null);
 
         try {
             File file = chooser.showSaveDialog(table.getScene().getWindow());
             if (file == null) return;
-            GameField.getInstance().storeToFile(file,movingFigure);
+            GameField.getInstance().storeToFile(file, movingFigure);
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
@@ -292,7 +312,7 @@ delayService.setOnCancelled(null);
                 new FileChooser.ExtensionFilter("XML Files", "*.xml"));
 
         File file = null;
-    //    isDialog = true;
+        //    isDialog = true;
         delayService.setOnSucceeded(null);
         delayService.setOnCancelled(null);
 
@@ -317,7 +337,7 @@ delayService.setOnCancelled(null);
             alert.setHeaderText("Game was loaded successfully!");
         }
         Optional<ButtonType> opt = alert.showAndWait();
-  //      isDialog = false;
+        //      isDialog = false;
         delayService.setOnSucceeded(succeededCancelledHandler);
         delayService.setOnCancelled(succeededCancelledHandler);
         delayService.reset();
@@ -353,7 +373,106 @@ delayService.setOnCancelled(null);
     }
 
     public Figure generateNextFigure() {
-        return Three.createFigure();
+        Figure figure = null;
+        Random random = new Random();
+
+
+        switch (random.nextInt(13)) {
+            // LIST of figures
+            case 0:
+                //      X
+                //      X
+                //      X
+                figure = Three.createFigure().rotateFigure();
+                figure.setPositionY(1);
+                break;
+
+            case 1:
+                //      XXX
+                figure = Three.createFigure();
+                break;
+
+            case 2:
+                //      XXXX
+                figure = Four.createFigure();
+                break;
+
+            case 3:
+                //      X
+                //      X
+                //      X
+                //      X
+                figure = Four.createFigure().rotateFigure();
+                figure.setPositionY(2);
+                break;
+
+            case 4:
+                //      XX
+                //      XX
+                figure = Square.createFigure();
+                break;
+
+            case 5:
+                //      XX
+                //       XX
+                figure = Zet.createFigure();
+                break;
+
+            case 6:
+                //       X
+                //      XX
+                //      x
+                figure = Zet.createFigure().rotateFigure();
+                figure.setPositionY(1);
+                break;
+
+            case 7:
+                //        XX
+                //       XX
+                figure = Zet.createFigure().rotateFigure().rotateFigure();
+                break;
+
+            case 8:
+                //      X
+                //      XX
+                //       X
+                figure = Zet.createFigure().rotateFigure().rotateFigure().rotateFigure();
+                figure.setPositionY(1);
+                break;
+
+            case 9:
+                //       X
+                //      XXX
+                figure = Stud.createFigure();
+                break;
+
+            case 10:
+                //       X
+                //      XX
+                //       X
+                figure = Stud.createFigure().rotateFigure();
+                figure.setPositionY(1);
+                break;
+
+            case 11:
+                //      XXX
+                //       X
+                figure = Stud.createFigure().rotateFigure().rotateFigure();
+                break;
+
+            case 12:
+                //       X
+                //       XX
+                //       X
+                figure = Stud.createFigure().rotateFigure().rotateFigure().rotateFigure();
+                figure.setPositionY(1);
+                break;
+
+            default:
+                break;
+        }
+
+        return figure;
     }
 
 }
